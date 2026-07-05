@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env
+
+# VS Code
+.vscode/
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# Python Packaging
+build/
+dist/
+*.egg-info/
+
+# ML Models (optional if too large)
+models/*.pkl
+
+# Extracted Data
+extracted_data/
+
+# Uploaded Documents
+uploads/
+
+# Exported Reports
+reports/exported_reports/
+
+# OS Files
+.DS_Store
+Thumbs.db
