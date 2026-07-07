@@ -1,7 +1,8 @@
 from database.database import db
 from datetime import datetime
+from flask_login import UserMixin
 
-class User(db.Model):
+class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -26,6 +27,7 @@ class User(db.Model):
     predictions = db.relationship('Prediction', backref='user')
 
     chat_history = db.relationship('ChatHistory', backref='user')
+
 
 class Document(db.Model):
 
