@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>AI Tax Advisor</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static',filename='css/dashboard.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+
+    <div class="sidebar">
+
+        <h2>CAAI</h2>
+
+        <a href="#">Dashboard</a>
+
+        <a href="#">Upload Documents</a>
+
+        <a href="#">Tax Summary</a>
+
+        <a href="#">AI Assistant</a>
+
+        <a href="#">Reports</a>
+
+        <a href="#">Profile</a>
+
+        <a href="#">Logout</a>
+
+    </div>
+
+    <!-- Main -->
+
+    <div class="main">
+
+        <h1>Welcome {{ user.name }} 👋</h1>
+
+        <p>Your AI Tax Advisor is Ready.</p>
+
+        <div class="cards">
+
+            <div class="card">
+
+                <h3>Documents</h3>
+
+                <h2>{{ stats.documents }}</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Estimated Tax</h3>
+
+                <h2>{{ stats.tax }}</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Savings</h3>
+
+                <h2>{{ stats.savings }}</h2>
+
+            </div>
+
+            <div class="card">
+
+                <h3>AI Suggestions</h3>
+
+                <h2>{{ stats.ai }}</h2>
+
+            </div>
+
+        </div>
+
+        <h2>Quick Actions</h2>
+
+        <button onclick="demo()">Upload Form16</button>
+
+        <button onclick="demo()">Salary Slip</button>
+
+        <button onclick="demo()">Bank Statement</button>
+
+        <button onclick="demo()">Chat with AI</button>
+
+        <button onclick="demo()">Generate Report</button>
+
+        <h2>Recent Activity</h2>
+
+        <div class="activity">
+
+            No Recent Activity
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static',filename='js/dashboard.js') }}"></script>
+
+</body>
+
+</html>

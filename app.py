@@ -4,7 +4,6 @@ from database.database import db
 from database.models import User
 from routes.auth_routes import auth
 
-app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'CAAI-Development-Key-2026'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
