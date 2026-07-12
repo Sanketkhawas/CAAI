@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ config.label }} · CAAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark">C</span>
+      <span class="brand-name">CAAI</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard.dashboard_home') }}" class="nav-item"><span class="nav-icon">▦</span><span class="nav-label">Dashboard</span></a>
+      <a href="{{ url_for('upload.upload_hub') }}" class="nav-item active"><span class="nav-icon">⇧</span><span class="nav-label">Upload Documents</span></a>
+      <a href="{{ url_for('dashboard.tax_summary_placeholder') }}" class="nav-item"><span class="nav-icon">Σ</span><span class="nav-label">Tax Summary</span></a>
+      <a href="{{ url_for('dashboard.chatbot_placeholder') }}" class="nav-item"><span class="nav-icon">✦</span><span class="nav-label">AI Assistant</span></a>
+      <a href="{{ url_for('dashboard.reports_placeholder') }}" class="nav-item"><span class="nav-icon">▤</span><span class="nav-label">Reports</span></a>
+      <a href="{{ url_for('dashboard.profile_placeholder') }}" class="nav-item"><span class="nav-icon">◉</span><span class="nav-label">Profile</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{{ url_for('auth.logout') }}" class="nav-item logout"><span class="nav-icon">⏻</span><span class="nav-label">Logout</span></a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="navbar">
+      <a href="{{ url_for('upload.upload_hub') }}" class="back-link">← All document types</a>
+    </header>
+
+    <main class="content">
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <section class="panel upload-panel">
+        <div class="panel-header">
+          <h2>{{ config.label }}</h2>
+          <p class="upload-desc">{{ config.hint }}</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+          <label class="dropzone" for="fileInput" id="dropzone">
+            <span class="dropzone-icon">⇧</span>
+            <span class="dropzone-title">Drag files here, or click to browse</span>
+            <span class="dropzone-hint">PDF, PNG, or JPG · up to 5 files at once</span>
+            <input type="file" name="documents" id="fileInput" multiple accept=".pdf,.png,.jpg,.jpeg" hidden>
+          </label>
+
+          <ul class="file-preview-list" id="filePreviewList"></ul>
+
+          <button type="submit" class="upload-submit-btn">Upload {{ config.label }}</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Previously Uploaded</h2>
+        </div>
+
+        {% if existing and existing|length > 0 %}
+        <ul class="uploaded-list">
+          {% for doc in existing %}
+          <li class="uploaded-item">
+            <span class="uploaded-icon">📄</span>
+            <span class="uploaded-name">{{ doc.filename }}</span>
+            <span class="uploaded-date">{{ doc.uploaded_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+            <span class="uploaded-status status-{{ doc.status }}">{{ doc.status }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state">
+          <p class="empty-title">No {{ config.label|lower }} uploaded yet</p>
+          <p class="empty-sub">Files you upload will appear here.</p>
+        </div>
+        {% endif %}
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+</body>
+</html>

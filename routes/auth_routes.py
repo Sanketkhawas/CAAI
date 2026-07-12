@@ -82,7 +82,7 @@ def login():
 
         flash("Login Successful!", "success")
 
-        return redirect("/") # for now until we have dashboard
+        return redirect(url_for("dashboard.dashboard_home")) 
 
      flash("Invalid Email or Password", "danger")
 

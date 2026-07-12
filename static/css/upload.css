@@ -1,0 +1,206 @@
+/* ============================================================
+   CAAI Upload pages — extends dashboard.css tokens/theme.
+   ============================================================ */
+
+.page-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.back-link {
+  color: var(--grey-600);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+.back-link:hover { color: var(--navy-800); }
+
+.hub-sub {
+  color: var(--grey-600);
+  font-size: 0.92rem;
+  margin: 0 0 20px 0;
+  max-width: 640px;
+}
+
+/* Hub grid */
+.upload-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.hub-card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hub-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft);
+}
+
+.hub-icon { font-size: 1.6rem; }
+
+.hub-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.hub-hint {
+  font-size: 0.82rem;
+  color: var(--grey-600);
+  line-height: 1.4;
+}
+
+/* Flash messages */
+.flash-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.flash {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.flash-success { background: #e4f6ec; color: #1f8a52; }
+.flash-danger  { background: #fdecec; color: #c0392b; }
+.flash-warning { background: #fff6df; color: #96700f; }
+.flash-info    { background: #e8f0fe; color: #1c4ed8; }
+
+/* Upload panel / dropzone */
+.upload-desc {
+  color: var(--grey-600);
+  font-size: 0.86rem;
+  margin: 4px 0 0 0;
+}
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  border: 2px dashed var(--grey-200);
+  border-radius: var(--radius-md);
+  padding: 40px 20px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--gold-500);
+  background: #fdf8ec;
+}
+
+.dropzone-icon { font-size: 1.6rem; color: var(--gold-500); }
+
+.dropzone-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.dropzone-hint {
+  font-size: 0.78rem;
+  color: var(--grey-400);
+}
+
+.file-preview-list {
+  list-style: none;
+  margin: 14px 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+}
+
+.file-preview-item .remove-file {
+  margin-left: auto;
+  cursor: pointer;
+  color: var(--grey-400);
+  font-weight: 700;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.upload-submit-btn {
+  margin-top: 18px;
+  background: var(--navy-900);
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.upload-submit-btn:hover { background: var(--navy-800); }
+
+/* Previously uploaded list */
+.uploaded-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.uploaded-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: var(--bg);
+  font-size: 0.85rem;
+}
+
+.uploaded-name { flex: 1; }
+.uploaded-date { color: var(--grey-400); font-size: 0.78rem; }
+
+.uploaded-status {
+  text-transform: capitalize;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: var(--grey-200);
+  color: var(--grey-600);
+}
+
+.uploaded-status.status-uploaded {
+  background: #e4f6ec;
+  color: #1f8a52;
+}

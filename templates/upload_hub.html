@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Documents · CAAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css') }}">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark">C</span>
+      <span class="brand-name">CAAI</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard.dashboard_home') }}" class="nav-item"><span class="nav-icon">▦</span><span class="nav-label">Dashboard</span></a>
+      <a href="{{ url_for('upload.upload_hub') }}" class="nav-item active"><span class="nav-icon">⇧</span><span class="nav-label">Upload Documents</span></a>
+      <a href="{{ url_for('dashboard.tax_summary_placeholder') }}" class="nav-item"><span class="nav-icon">Σ</span><span class="nav-label">Tax Summary</span></a>
+      <a href="{{ url_for('dashboard.chatbot_placeholder') }}" class="nav-item"><span class="nav-icon">✦</span><span class="nav-label">AI Assistant</span></a>
+      <a href="{{ url_for('dashboard.reports_placeholder') }}" class="nav-item"><span class="nav-icon">▤</span><span class="nav-label">Reports</span></a>
+      <a href="{{ url_for('dashboard.profile_placeholder') }}" class="nav-item"><span class="nav-icon">◉</span><span class="nav-label">Profile</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{{ url_for('auth.logout') }}" class="nav-item logout"><span class="nav-icon">⏻</span><span class="nav-label">Logout</span></a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="navbar">
+      <h2 class="page-title">Upload Documents</h2>
+    </header>
+
+    <main class="content">
+      <p class="hub-sub">Choose a document type to upload. Each category is processed separately so the AI can apply the right extraction rules.</p>
+
+      <div class="upload-hub-grid">
+        {% for key, cfg in doc_types.items() %}
+        <a href="{{ url_for('upload.upload_' + key.replace('-', '_')) }}" class="hub-card">
+          <span class="hub-icon">📄</span>
+          <span class="hub-title">{{ cfg.label }}</span>
+          <span class="hub-hint">{{ cfg.hint }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

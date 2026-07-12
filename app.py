@@ -1,9 +1,13 @@
 from flask import Flask
 import os
 
+from flask_login import LoginManager
+
 from database.database import db
 from database.models import User
 from routes.auth_routes import auth
+from routes.dashboard_routes import dashboard
+from routes.upload_routes import upload_bp
 
 app = Flask(__name__)
 
@@ -29,9 +33,26 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB upload limit
 db.init_app(app)
 
 # -----------------------------
+# Initialize Flask-Login
+# -----------------------------
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'          # where @login_required redirects to
+login_manager.login_message = "Please log in to access this page."
+login_manager.login_message_category = "info"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+# -----------------------------
 # Register Blueprints
 # -----------------------------
 app.register_blueprint(auth)
+app.register_blueprint(dashboard)
+app.register_blueprint(upload_bp)
 
 # -----------------------------
 # Create Database Tables
