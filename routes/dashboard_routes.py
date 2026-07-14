@@ -11,6 +11,14 @@ be wired in later through the placeholder routes below.
 
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, current_user
+from flask_login import login_required, current_user
+
+from database.models import (
+    Document,
+    Recommendation,
+    Transaction,
+    Deduction,
+)
 
 dashboard = Blueprint("dashboard", __name__)
 
@@ -30,34 +38,54 @@ def dashboard_home():
     # ---- Stats: hardcoded placeholders for now -----------------------
     # Replace these with real queries once Upload/OCR/Tax Engine exist, e.g.:
     #   documents_uploaded = Document.query.filter_by(user_id=current_user.id).count()
+    documents_uploaded = Document.query.filter_by(
+                         user_id=current_user.id
+                         ).count()
+    
     stats = {
-        "documents_uploaded": 0,
+        "documents_uploaded": documents_uploaded,
         "estimated_tax": 0,
         "potential_savings": 0,
         "ai_recommendations": 0,
     }
 
     # ---- Recent activity: empty until Upload/Reports/Chatbot exist ----
+    recent_docs = (
+    Document.query
+    .filter_by(user_id=current_user.id)
+    .order_by(Document.upload_date.desc())
+    .limit(5)
+    .all()
+     )
     recent_activity = []  # e.g. [{"icon": "upload", "text": "Uploaded Form 16", "time": "2h ago"}]
-
+     
+    for doc in recent_docs:
+     recent_activity.append({
+        "text": f"Uploaded {doc.document_type}",
+        "time": doc.upload_date.strftime("%d %b %Y")
+    })
     # ---- Tax calendar: static for now, can be generated later ---------
     tax_calendar = [
-        {"date": "15 Jun 2026", "label": "Advance Tax (1st Installment)"},
-        {"date": "15 Sep 2026", "label": "Advance Tax (2nd Installment)"},
-        {"date": "15 Dec 2026", "label": "Advance Tax (3rd Installment)"},
-        {"date": "31 Jul 2026", "label": "ITR Filing Deadline"},
-    ]
+    {
+        "date": "31 Jul",
+        "label": "ITR Filing Due Date"
+    },
+    {
+        "date": "15 Jun",
+        "label": "Advance Tax Installment"
+    }
+]
 
     ai_tip = "Investments under Section 80C — like ELSS, PPF, or life insurance premiums — can reduce your taxable income by up to ₹1.5 lakh."
 
     return render_template(
-        "dashboard.html",
-        user=current_user,
-        stats=stats,
-        recent_activity=recent_activity,
-        tax_calendar=tax_calendar,
-        ai_tip=ai_tip,
-    )
+    "dashboard.html",
+    user=current_user,
+    stats=stats,
+    recent_activity=recent_activity,
+    tax_calendar=tax_calendar,
+    ai_tip=ai_tip
+)
 
 
 # ---------------------------------------------------------------------

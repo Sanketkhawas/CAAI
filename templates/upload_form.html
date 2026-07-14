@@ -77,9 +77,9 @@
           {% for doc in existing %}
           <li class="uploaded-item">
             <span class="uploaded-icon">📄</span>
-            <span class="uploaded-name">{{ doc.filename }}</span>
-            <span class="uploaded-date">{{ doc.uploaded_at.strftime('%d %b %Y, %I:%M %p') }}</span>
-            <span class="uploaded-status status-{{ doc.status }}">{{ doc.status }}</span>
+            <span class="uploaded-name">{{ doc.file_name }}</span>
+            <span class="uploaded-date">{{ doc.upload_date.strftime('%d %b %Y, %I:%M %p') }}</span>
+            <span class="uploaded-status status-{{ doc.ocr_status }}">{{ doc.ocr_status }}</span>
           </li>
           {% endfor %}
         </ul>

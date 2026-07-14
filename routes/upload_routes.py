@@ -146,13 +146,14 @@ def _handle_upload(doc_key):
             file.save(filepath)
 
             doc = Document(
-                user_id=current_user.id,
-                filename=original_name,
-                filepath=filepath,
-                doc_type=doc_key,
-                uploaded_at=datetime.utcnow(),
-                status="uploaded",
-            )
+               user_id=current_user.id,
+               document_type=doc_key,
+               file_name=original_name,
+               file_path=filepath,
+               upload_date=datetime.utcnow(),
+               ocr_status="uploaded",
+               processed=False
+         )
             db.session.add(doc)
             saved_count += 1
 
@@ -164,10 +165,13 @@ def _handle_upload(doc_key):
 
     # GET: show this document type's upload form + its previously uploaded files
     existing = (
-        Document.query.filter_by(user_id=current_user.id, doc_type=doc_key)
-        .order_by(Document.uploaded_at.desc())
-        .all()
+    Document.query.filter_by(
+        user_id=current_user.id,
+        document_type=doc_key
     )
+    .order_by(Document.upload_date.desc())
+    .all()
+)
 
     return render_template(
         "upload_form.html",
