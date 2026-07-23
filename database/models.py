@@ -1,6 +1,10 @@
 from database.database import db
 from datetime import datetime
 from flask_login import UserMixin
+import json
+
+
+
 
 class User(UserMixin, db.Model):
 
@@ -186,12 +190,22 @@ class OCRData(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    document_id = db.Column(db.Integer, db.ForeignKey('document.id'))
+    document_id = db.Column(
+        db.Integer,
+        db.ForeignKey('document.id'),
+        nullable=False
+    )
 
-    raw_text = db.Column(db.Text)
+    raw_text = db.Column(db.Text, nullable=False)
 
-    clean_text = db.Column(db.Text)
+    clean_text = db.Column(db.Text, nullable=False)
 
-    entities = db.Column(db.Text)
+    entities = db.Column(db.Text, nullable=False)
 
     confidence = db.Column(db.Float)
+
+    is_valid = db.Column(db.Boolean, default=True)
+
+    validation_errors = db.Column(db.Text)
+
+    processed_at = db.Column(db.DateTime, default=datetime.utcnow)

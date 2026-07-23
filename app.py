@@ -65,7 +65,7 @@ with app.app_context():
 # -----------------------------
 @app.route('/')
 def home():
-    return "AI Tax Advisor Database Running"
+    return "AI Tax Advisor Running"
 
 # -----------------------------
 # Run Application

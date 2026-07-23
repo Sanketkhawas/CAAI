@@ -10,12 +10,6 @@ This module does NOT do OCR or parsing — it only accepts, validates,
 stores the file, and logs a Document row. OCR (Phase 5) will pick up
 from the stored filepath.
 
-NOTE ON THE Document MODEL:
-This assumes database/models.py has a `Document` model with roughly:
-    id, user_id, filename, filepath, doc_type, uploaded_at, status
-If your actual field names differ, adjust the `Document(...)` calls
-below to match — everything else (file handling, folder structure,
-validation) will work unchanged.
 """
 
 import os
@@ -28,6 +22,14 @@ from werkzeug.utils import secure_filename
 
 from database.database import db
 from database.models import Document
+
+from services.ocr.pipeline import OCRPipeline
+from services.ocr.database_service import OCRDatabaseService
+
+from database.database import db
+
+from services.ocr.logger import logger
+
 
 upload_bp = Blueprint("upload", __name__, url_prefix="/upload")
 
@@ -113,69 +115,170 @@ def upload_investment_proof():
 
 def _handle_upload(doc_key):
     """
-    Shared logic for every document-type route above. Keeping this in
-    one place means fixing a bug or adding a rule (e.g. antivirus scan
-    later) only needs to happen once.
+    Shared upload handler for all document types.
+    Handles:
+    - file validation
+    - saving files
+    - creating document records
+    - OCR processing
+    - storing extracted data
     """
+
     config = DOC_TYPES[doc_key]
 
+    existing = Document.query.filter_by(
+        user_id=current_user.id,
+        document_type=doc_key
+    ).all()
+
+
     if request.method == "POST":
+
         files = request.files.getlist("documents")
         files = [f for f in files if f and f.filename]
+
 
         if not files:
             flash("Please choose at least one file to upload.", "danger")
             return redirect(url_for(request.endpoint))
 
+
         if len(files) > MAX_FILES_PER_REQUEST:
-            flash(f"Please upload at most {MAX_FILES_PER_REQUEST} files at a time.", "danger")
+            flash(
+                f"Please upload at most {MAX_FILES_PER_REQUEST} files.",
+                "danger"
+            )
             return redirect(url_for(request.endpoint))
 
+
         saved_count = 0
+
         target_dir = _user_upload_dir(config["folder"])
 
+
         for file in files:
+
             if not _allowed_file(file.filename):
-                flash(f"'{file.filename}' was skipped — only PDF, PNG, or JPG files are allowed.", "warning")
+                flash(
+                    f"{file.filename} skipped. Only PDF, PNG, JPG allowed.",
+                    "warning"
+                )
                 continue
 
-            original_name = secure_filename(file.filename)
-            unique_name = f"{datetime.utcnow():%Y%m%d%H%M%S}_{uuid.uuid4().hex[:8]}_{original_name}"
-            filepath = os.path.join(target_dir, unique_name)
 
-            file.save(filepath)
+            try:
 
-            doc = Document(
-               user_id=current_user.id,
-               document_type=doc_key,
-               file_name=original_name,
-               file_path=filepath,
-               upload_date=datetime.utcnow(),
-               ocr_status="uploaded",
-               processed=False
-         )
-            db.session.add(doc)
-            saved_count += 1
+                # ---------------------------
+                # Save File
+                # ---------------------------
 
-        db.session.commit()
+                original_name = secure_filename(file.filename)
+
+
+                unique_name = (
+                    f"{datetime.utcnow():%Y%m%d%H%M%S}_"
+                    f"{uuid.uuid4().hex[:8]}_"
+                    f"{original_name}"
+                )
+
+
+                filepath = os.path.join(
+                    target_dir,
+                    unique_name
+                )
+
+
+                file.save(filepath)
+
+
+
+                # ---------------------------
+                # Create Database Record
+                # ---------------------------
+
+                document = Document(
+                    user_id=current_user.id,
+                    document_type=doc_key,
+                    file_name=original_name,
+                    file_path=filepath,
+                    upload_date=datetime.utcnow(),
+                    ocr_status="Processing",
+                    processed=False
+                )
+
+
+                db.session.add(document)
+                db.session.commit()
+
+
+
+                # ---------------------------
+                # OCR Processing
+                # ---------------------------
+
+                pipeline = OCRPipeline()
+
+
+                result = pipeline.process(filepath)
+
+
+
+                # ---------------------------
+                # Save OCR Result
+                # ---------------------------
+
+                db_service = OCRDatabaseService()
+
+
+                db_service.save(
+                    document.id,
+                    result.get("raw_text"),
+                    result.get("clean_text"),
+                    result.get("entities"),
+                    result.get("confidence")
+                )
+
+
+
+                document.ocr_status = "Completed"
+                document.processed = True
+
+
+                db.session.commit()
+
+
+                saved_count += 1
+
+
+
+            except Exception as e:
+
+                logger.error(
+                    f"OCR processing failed: {str(e)}"
+                )
+
+
+                if 'document' in locals() and document:
+
+                    document.ocr_status = "Failed"
+                    db.session.commit()
+
 
         if saved_count:
-            flash(f"{saved_count} file(s) uploaded successfully.", "success")
-        return redirect(url_for(request.endpoint))
 
-    # GET: show this document type's upload form + its previously uploaded files
-    existing = (
-    Document.query.filter_by(
-        user_id=current_user.id,
-        document_type=doc_key
-    )
-    .order_by(Document.upload_date.desc())
-    .all()
-)
+            flash(
+                f"{saved_count} file(s) uploaded and processed successfully.",
+                "success"
+            )
+
+            return redirect(
+                url_for(request.endpoint)
+            )
+
 
     return render_template(
         "upload_form.html",
         doc_key=doc_key,
         config=config,
-        existing=existing,
+        existing=existing
     )
