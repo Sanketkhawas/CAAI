@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · CAAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-mark">C</span>
+      <span class="brand-name">CAAI</span>
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar">‹</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard.dashboard_home') }}" class="nav-item active">
+        <span class="nav-icon">▦</span><span class="nav-label">Dashboard</span>
+      </a>
+      <a href="{{ url_for('upload.upload_hub') }}" class="nav-item">
+        <span class="nav-icon">⇧</span><span class="nav-label">Upload Documents</span>
+      </a>
+      <a href="{{ url_for('dashboard.tax_summary_placeholder') }}" class="nav-item">
+        <span class="nav-icon">Σ</span><span class="nav-label">Tax Summary</span>
+      </a>
+      <a href="#" class="nav-item" id="sidebarAiAssistant">
+        <span class="nav-icon">✦</span><span class="nav-label">AI Assistant</span>
+      </a>
+      <a href="{{ url_for('dashboard.reports_placeholder') }}" class="nav-item">
+        <span class="nav-icon">▤</span><span class="nav-label">Reports</span>
+      </a>
+      <a href="{{ url_for('dashboard.profile_placeholder') }}" class="nav-item">
+        <span class="nav-icon">◉</span><span class="nav-label">Profile</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('auth.logout') }}" class="nav-item logout">
+        <span class="nav-icon">⏻</span><span class="nav-label">Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+
+    <!-- Top navbar -->
+    <header class="navbar">
+      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
+
+      <div class="navbar-search">
+        <span class="search-icon">⌕</span>
+        <input type="text" placeholder="Search documents, reports, actions…">
+      </div>
+
+      <div class="navbar-actions">
+        <button class="icon-btn" id="notifBtn" aria-label="Notifications">
+          🔔<span class="notif-dot"></span>
+        </button>
+        <div class="notif-dropdown" id="notifDropdown">
+          <p class="notif-title">Notifications</p>
+          <p class="notif-empty">You're all caught up. Nothing needs your attention right now.</p>
+        </div>
+
+        <button class="icon-btn" id="darkModeBtn" aria-label="Toggle dark mode">◐</button>
+
+        <div class="navbar-profile">
+          <span class="avatar">{{ (user.name[0] if user and user.name else "U") | upper }}</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Scrollable content -->
+    <main class="content">
+
+      <!-- Welcome + Tax Efficiency Score -->
+      <section class="welcome-row">
+        <div class="welcome-card">
+          <p class="eyebrow">Financial Year 2026–27</p>
+          <h1>Welcome, {{ user.name if user and user.name else "there" }} 👋</h1>
+          <p class="welcome-sub">Here's where your taxes stand today, and what to do next.</p>
+        </div>
+
+        <div class="score-card">
+          <div class="gauge" id="taxGauge">
+            <svg viewBox="0 0 120 120">
+              <circle class="gauge-track" cx="60" cy="60" r="52"></circle>
+              <circle class="gauge-value" cx="60" cy="60" r="52" id="gaugeCircle"></circle>
+            </svg>
+            <div class="gauge-label">
+              <span class="gauge-number" id="gaugeNumber">0</span>
+              <span class="gauge-unit">/ 100</span>
+            </div>
+          </div>
+          <p class="gauge-caption">Tax Efficiency Score</p>
+          <p class="gauge-hint">Improves as documents, deductions and investments are added.</p>
+        </div>
+      </section>
+
+      <!-- Stat cards -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">⇧</span>
+          <p class="stat-value" data-count="{{ stats.documents_uploaded }}">0</p>
+          <p class="stat-label">Documents Uploaded</p>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">Σ</span>
+          <p class="stat-value" data-prefix="₹" data-count="{{ stats.estimated_tax }}">₹0</p>
+          <p class="stat-label">Estimated Tax</p>
+        </div>
+        <div class="stat-card accent">
+          <span class="stat-icon">↓</span>
+          <p class="stat-value" data-prefix="₹" data-count="{{ stats.potential_savings }}">₹0</p>
+          <p class="stat-label">Potential Savings</p>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">✦</span>
+          <p class="stat-value" data-count="{{ stats.ai_recommendations }}">0</p>
+          <p class="stat-label">AI Recommendations</p>
+        </div>
+      </section>
+
+      <!-- Quick actions -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Quick Actions</h2>
+        </div>
+        <div class="quick-actions">
+          <a href="{{ url_for('upload.upload_form16') }}" class="qa-card">
+            <span class="qa-icon">📄</span>
+            <span class="qa-title">Upload Form 16</span>
+          </a>
+          <a href="{{ url_for('upload.upload_salary_slip') }}" class="qa-card">
+            <span class="qa-icon">🧾</span>
+            <span class="qa-title">Upload Salary Slip</span>
+          </a>
+          <a href="{{ url_for('upload.upload_bank_statement') }}" class="qa-card">
+            <span class="qa-icon">🏦</span>
+            <span class="qa-title">Upload Bank Statement</span>
+          </a>
+          <a href="#" class="qa-card" id="quickAiAssistant">
+            <span class="qa-icon">✦</span>
+            <span class="qa-title">Ask AI Assistant</span>
+          </a>
+          <a href="{{ url_for('dashboard.reports_placeholder') }}" class="qa-card">
+            <span class="qa-icon">▤</span>
+            <span class="qa-title">Generate Report</span>
+          </a>
+        </div>
+      </section>
+
+      <div class="two-col">
+        <!-- Recent activity -->
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Recent Activity</h2>
+          </div>
+          <div class="activity-list">
+            {% if recent_activity and recent_activity|length > 0 %}
+              {% for item in recent_activity %}
+              <div class="activity-item">
+                <span class="activity-dot"></span>
+                <span class="activity-text">{{ item.text }}</span>
+                <span class="activity-time">{{ item.time }}</span>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="empty-state">
+                <p class="empty-title">No recent activity yet</p>
+                <p class="empty-sub">Upload your first document to start building your tax profile.</p>
+              </div>
+            {% endif %}
+          </div>
+        </section>
+
+        <!-- Tax calendar + AI tip -->
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Tax Calendar</h2>
+          </div>
+          <ul class="calendar-list">
+            {% for item in tax_calendar %}
+            <li class="calendar-item">
+              <span class="calendar-date">{{ item.date }}</span>
+              <span class="calendar-label">{{ item.label }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <div class="ai-tip-card">
+            <span class="ai-tip-badge">AI Tip</span>
+            <p>{{ ai_tip }}</p>
+          </div>
+        </section>
+      </div>
+
+      <footer class="dash-footer">
+        <p>© 2026 CAAI — AI Powered Tax Advisor · Version 1.0</p>
+      </footer>
+
+    </main>
+  </div>
+</div>
+
+<!-- ================= AI ASSISTANT FLOATING BUTTON ================= -->
+
+<div class="ai-fab" id="aiFab">
+
+    <div class="ai-fab-ring"></div>
+
+    <div class="ai-fab-core">
+        🤖
+    </div>
+
+</div>
+
+
+<!-- ================= AI CHAT WINDOW ================= -->
+
+<div class="ai-chat-window" id="aiChatWindow">
+
+    <div class="ai-chat-header">
+
+        <div class="ai-header-left">
+
+            <div class="ai-avatar">
+                🤖
+            </div>
+
+            <div>
+
+                <h3>AI Tax Assistant</h3>
+
+                <span>
+                    <span class="online-dot"></span>
+                    Powered by Gemini
+                </span>
+
+            </div>
+
+        </div>
+
+        <button id="closeChat">
+            ✕
+        </button>
+
+    </div>
+
+
+    <div class="ai-chat-body" id="chatMessages">
+
+        <div class="welcome-box">
+
+            <h2>👋 Welcome {{ user.name }}</h2>
+
+            <p>
+                Ask me anything about your tax, deductions,
+                Form 16 or tax regime.
+            </p>
+
+            <div class="quick-prompts">
+
+                <button class="prompt-btn">
+                    Which regime is better?
+                </button>
+
+                <button class="prompt-btn">
+                    Can I save more tax?
+                </button>
+
+                <button class="prompt-btn">
+                    Explain Form 16
+                </button>
+
+                <button class="prompt-btn">
+                    What is my taxable income?
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="ai-chat-input">
+
+        <input
+            type="text"
+            id="chatInput"
+            placeholder="Ask your AI Tax Assistant..."
+        >
+
+        <button id="sendMessage">
+            ➜
+        </button>
+
+    </div>
+
+</div>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
