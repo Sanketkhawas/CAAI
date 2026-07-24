@@ -662,3 +662,304 @@ body.dark .calendar-date { color: var(--gold-400); }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .content { padding: 18px 16px 30px; }
 }
+/* ==========================================================
+   AI TAX ASSISTANT
+========================================================== */
+
+.ai-fab{
+    position:fixed;
+    bottom:28px;
+    right:28px;
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    cursor:pointer;
+    z-index:9999;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.ai-fab-ring{
+
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+
+    background:linear-gradient(135deg,#5B7CFF,#8A5CFF);
+
+    animation:aiPulse 2.2s infinite;
+
+    filter:blur(4px);
+
+    opacity:.65;
+}
+
+.ai-fab-core{
+
+    width:62px;
+    height:62px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:28px;
+
+    color:white;
+
+    background:linear-gradient(135deg,#4f7cff,#7d5fff);
+
+    backdrop-filter:blur(18px);
+
+    box-shadow:
+    0 12px 35px rgba(75,110,255,.45);
+
+    transition:.35s;
+}
+
+.ai-fab:hover .ai-fab-core{
+
+    transform:scale(1.12) rotate(8deg);
+
+}
+
+@keyframes aiPulse{
+
+0%{
+
+transform:scale(1);
+
+opacity:.55;
+
+}
+
+70%{
+
+transform:scale(1.25);
+
+opacity:0;
+
+}
+
+100%{
+
+transform:scale(1);
+
+opacity:0;
+
+}
+
+}
+
+/* ======================================= */
+
+.ai-chat-window{
+
+position:fixed;
+
+bottom:115px;
+
+right:30px;
+
+width:430px;
+
+height:680px;
+
+border-radius:28px;
+
+overflow:hidden;
+
+display:none;
+
+flex-direction:column;
+
+background:rgba(255,255,255,.75);
+
+backdrop-filter:blur(24px);
+
+box-shadow:
+
+0 25px 70px rgba(0,0,0,.18);
+
+z-index:9999;
+
+border:1px solid rgba(255,255,255,.45);
+
+animation:popup .35s ease;
+
+}
+
+@keyframes popup{
+
+from{
+
+opacity:0;
+
+transform:translateY(40px) scale(.9);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0) scale(1);
+
+}
+
+}
+
+.ai-chat-window.show{
+
+display:flex;
+
+}
+/* ================= HEADER ================= */
+
+.ai-chat-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px;
+background:linear-gradient(135deg,#4f7cff,#7d5fff);
+color:white;
+}
+
+.ai-header-left{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.ai-avatar{
+width:48px;
+height:48px;
+border-radius:50%;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:24px;
+}
+
+.online-dot{
+width:8px;
+height:8px;
+display:inline-block;
+border-radius:50%;
+background:#00ff6a;
+margin-right:6px;
+}
+
+#closeChat{
+background:none;
+border:none;
+font-size:22px;
+cursor:pointer;
+color:white;
+}
+
+/* ================= BODY ================= */
+
+.ai-chat-body{
+flex:1;
+padding:20px;
+overflow-y:auto;
+background:#f8f9ff;
+}
+
+.welcome-box h2{
+margin:0;
+font-size:24px;
+}
+
+.welcome-box p{
+color:#666;
+line-height:1.5;
+margin:15px 0;
+}
+
+.quick-prompts{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+margin-top:20px;
+}
+
+.prompt-btn{
+padding:10px 16px;
+border:none;
+border-radius:25px;
+background:#edf2ff;
+cursor:pointer;
+transition:.3s;
+}
+
+.prompt-btn:hover{
+background:#4f7cff;
+color:white;
+}
+
+/* ================= INPUT ================= */
+
+.ai-chat-input{
+
+display:flex;
+
+padding:18px;
+
+border-top:1px solid #ddd;
+
+background:white;
+
+}
+
+.ai-chat-input input{
+
+flex:1;
+
+padding:14px;
+
+border-radius:14px;
+
+border:1px solid #ddd;
+
+outline:none;
+
+font-size:15px;
+
+}
+
+#sendMessage{
+
+margin-left:10px;
+
+width:55px;
+
+border:none;
+
+border-radius:14px;
+
+background:#4f7cff;
+
+color:white;
+
+cursor:pointer;
+
+font-size:20px;
+
+transition:.3s;
+
+}
+
+#sendMessage:hover{
+
+background:#274cff;
+
+}

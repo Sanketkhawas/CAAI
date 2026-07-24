@@ -30,7 +30,7 @@
       <a href="{{ url_for('dashboard.tax_summary_placeholder') }}" class="nav-item">
         <span class="nav-icon">Σ</span><span class="nav-label">Tax Summary</span>
       </a>
-      <a href="{{ url_for('dashboard.chatbot_placeholder') }}" class="nav-item">
+      <a href="#" class="nav-item" id="sidebarAiAssistant">
         <span class="nav-icon">✦</span><span class="nav-label">AI Assistant</span>
       </a>
       <a href="{{ url_for('dashboard.reports_placeholder') }}" class="nav-item">
@@ -146,7 +146,7 @@
             <span class="qa-icon">🏦</span>
             <span class="qa-title">Upload Bank Statement</span>
           </a>
-          <a href="{{ url_for('dashboard.chatbot_placeholder') }}" class="qa-card">
+          <a href="#" class="qa-card" id="quickAiAssistant">
             <span class="qa-icon">✦</span>
             <span class="qa-title">Ask AI Assistant</span>
           </a>
@@ -210,6 +210,102 @@
   </div>
 </div>
 
+<!-- ================= AI ASSISTANT FLOATING BUTTON ================= -->
+
+<div class="ai-fab" id="aiFab">
+
+    <div class="ai-fab-ring"></div>
+
+    <div class="ai-fab-core">
+        🤖
+    </div>
+
+</div>
+
+
+<!-- ================= AI CHAT WINDOW ================= -->
+
+<div class="ai-chat-window" id="aiChatWindow">
+
+    <div class="ai-chat-header">
+
+        <div class="ai-header-left">
+
+            <div class="ai-avatar">
+                🤖
+            </div>
+
+            <div>
+
+                <h3>AI Tax Assistant</h3>
+
+                <span>
+                    <span class="online-dot"></span>
+                    Powered by Gemini
+                </span>
+
+            </div>
+
+        </div>
+
+        <button id="closeChat">
+            ✕
+        </button>
+
+    </div>
+
+
+    <div class="ai-chat-body" id="chatMessages">
+
+        <div class="welcome-box">
+
+            <h2>👋 Welcome {{ user.name }}</h2>
+
+            <p>
+                Ask me anything about your tax, deductions,
+                Form 16 or tax regime.
+            </p>
+
+            <div class="quick-prompts">
+
+                <button class="prompt-btn">
+                    Which regime is better?
+                </button>
+
+                <button class="prompt-btn">
+                    Can I save more tax?
+                </button>
+
+                <button class="prompt-btn">
+                    Explain Form 16
+                </button>
+
+                <button class="prompt-btn">
+                    What is my taxable income?
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="ai-chat-input">
+
+        <input
+            type="text"
+            id="chatInput"
+            placeholder="Ask your AI Tax Assistant..."
+        >
+
+        <button id="sendMessage">
+            ➜
+        </button>
+
+    </div>
+
+</div>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
 </html>

@@ -1,14 +1,15 @@
+from dotenv import load_dotenv
 from flask import Flask
 import os
 
 from flask_login import LoginManager
-
+from routes.chatbot_routes import chatbot
 from database.database import db
 from database.models import User
 from routes.auth_routes import auth
 from routes.dashboard_routes import dashboard
 from routes.upload_routes import upload_bp
-
+load_dotenv()
 app = Flask(__name__)
 
 # -----------------------------
@@ -53,6 +54,7 @@ def load_user(user_id):
 app.register_blueprint(auth)
 app.register_blueprint(dashboard)
 app.register_blueprint(upload_bp)
+app.register_blueprint(chatbot)
 
 # -----------------------------
 # Create Database Tables

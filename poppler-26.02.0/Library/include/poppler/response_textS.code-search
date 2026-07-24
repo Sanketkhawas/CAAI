@@ -1,0 +1,9 @@
+# Query: response.textS
+# ContextLines: 1
+
+1 result - 1 file
+
+services\chatbot\llm_interface.py:
+  38  
+  39:             return response.text
+  40  
