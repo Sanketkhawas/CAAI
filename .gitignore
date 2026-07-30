@@ -8,6 +8,18 @@ __pycache__/
 venv/
 .env
 
+# Python environment
+venv/
+.env/
+__pycache__/
+*.pyc
+
+# ML files
+*.h5
+*.keras
+
+# Database
+*.db
 # VS Code
 .vscode/
 

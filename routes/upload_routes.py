@@ -23,12 +23,17 @@ from werkzeug.utils import secure_filename
 from database.database import db
 from database.models import Document
 
+
 from services.ocr.pipeline import OCRPipeline
 from services.ocr.database_service import OCRDatabaseService
 
 from database.database import db
 
 from services.ocr.logger import logger
+
+from services.tax_engine.tax_engine import TaxEngine
+from services.tax_engine.tax_report import TaxReport
+from services.tax_engine.database_services import TaxDatabaseService
 
 
 upload_bp = Blueprint("upload", __name__, url_prefix="/upload")
@@ -218,10 +223,7 @@ def _handle_upload(doc_key):
 
                 pipeline = OCRPipeline()
 
-
                 result = pipeline.process(filepath)
-
-
 
                 # ---------------------------
                 # Save OCR Result
@@ -229,23 +231,36 @@ def _handle_upload(doc_key):
 
                 db_service = OCRDatabaseService()
 
-
                 db_service.save(
                     document.id,
-                    result.get("raw_text"),
-                    result.get("clean_text"),
-                    result.get("entities"),
-                    result.get("confidence")
+                    result["raw_text"],
+                    result["clean_text"],
+                    result["entities"],
+                    result["confidence"]
                 )
 
+                # ---------------------------
+                # Tax Processing
+                # ---------------------------
 
+                tax_engine = TaxEngine()
+
+                tax_result = tax_engine.calculate(result["entities"])
+
+                report = TaxReport().generate(tax_result)
+
+                tax_db = TaxDatabaseService()
+
+                tax_db.save(
+                    document.id,
+                    tax_result,
+                    report
+                )
 
                 document.ocr_status = "Completed"
                 document.processed = True
 
-
                 db.session.commit()
-
 
                 saved_count += 1
 
@@ -261,8 +276,10 @@ def _handle_upload(doc_key):
                 if 'document' in locals() and document:
 
                     document.ocr_status = "Failed"
-                    db.session.commit()
+                    db.session.rollback()
+                    print(e)
 
+        
 
         if saved_count:
 

@@ -3,9 +3,6 @@ from datetime import datetime
 from flask_login import UserMixin
 import json
 
-
-
-
 class User(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
@@ -34,7 +31,6 @@ class User(UserMixin, db.Model):
 
     investments = db.relationship('Investment', backref='user')
 
-    tax_calculations = db.relationship('TaxCalculation', backref='user')
 
 class Document(db.Model):
 
@@ -171,20 +167,29 @@ class Investment(db.Model):
 
 class TaxCalculation(db.Model):
 
+    __tablename__ = "tax_calculation"
+
     id = db.Column(db.Integer, primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    document_id = db.Column(db.Integer, db.ForeignKey("document.id"))
+
+    gross_salary = db.Column(db.Float)
+
+    taxable_income = db.Column(db.Float)
+
+    total_deductions = db.Column(db.Float)
 
     old_regime_tax = db.Column(db.Float)
 
     new_regime_tax = db.Column(db.Float)
 
-    recommended_regime = db.Column(db.String(50))
-
     tax_saved = db.Column(db.Float)
 
-    calculated_on = db.Column(db.DateTime, default=datetime.utcnow)
+    recommended_regime = db.Column(db.String(30))
 
+    report = db.Column(db.Text)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class OCRData(db.Model):
 
