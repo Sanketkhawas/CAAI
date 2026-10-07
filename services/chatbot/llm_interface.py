@@ -20,13 +20,13 @@ class LLMInterface:
         print("\n==============================")
         print(">>> USING NEW LLM INTERFACE <<<")
         print("==============================")
-        print("Model : gemini-2.5-flash")
+        print("Model : gemini-3.5-flash-lite")
         print("Prompt :", prompt[:150])
 
         try:
 
             response = self.client.models.generate_content(
-                model="gemini-flash-latest",
+                model="gemini-3.5-flash-lite",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.7,

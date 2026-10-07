@@ -19,24 +19,40 @@ class ContextManager:
     @staticmethod
     def get_context(user_id):
 
+        # Get user
         user = User.query.get(user_id)
 
-        tax = TaxCalculation.query.filter_by(
-            user_id=user_id
-        ).first()
-
-        deductions = Deduction.query.filter_by(
-            user_id=user_id
-        ).all()
-
-        recommendations = Recommendation.query.filter_by(
-            user_id=user_id
-        ).all()
-
+        # Get user's documents
         documents = Document.query.filter_by(
             user_id=user_id
         ).all()
 
+        # Get latest tax calculation through user's documents
+        tax = None
+
+        if documents:
+            document_ids = [document.id for document in documents]
+
+            tax = (
+                TaxCalculation.query
+                .filter(
+                    TaxCalculation.document_id.in_(document_ids)
+                )
+                .order_by(TaxCalculation.created_at.desc())
+                .first()
+            )
+
+        # Get deductions
+        deductions = Deduction.query.filter_by(
+            user_id=user_id
+        ).all()
+
+        # Get recommendations
+        recommendations = Recommendation.query.filter_by(
+            user_id=user_id
+        ).all()
+
+        # Get OCR documents
         ocr_documents = []
 
         for document in documents:
@@ -48,13 +64,11 @@ class ContextManager:
             if ocr:
 
                 ocr_documents.append({
+                    "document_type": document.document_type,
+                    "text": ocr.clean_text[:3000]
+                })
 
-                "document_type": document.document_type,
-
-                "text": ocr.clean_text[:3000]
-
-        })
-
+        # Final context
         context = {
 
             "name": user.name if user else "",
@@ -79,19 +93,16 @@ class ContextManager:
                         "section": d.section,
                         "amount": d.amount
                     }
-
                     for d in deductions
                 ],
 
             "recommendations":
-
                 [
                     r.recommendation
-
                     for r in recommendations
                 ],
 
-                "documents": ocr_documents
+            "documents": ocr_documents
         }
 
         return context
