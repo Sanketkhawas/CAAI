@@ -757,63 +757,65 @@ opacity:0;
 
 }
 
-/* ======================================= */
+/* Floating AI Assistant window */
+.ai-chat-window {
+    position: fixed;
+    right: 24px;
+    bottom: 100px;
 
-.ai-chat-window{
+    /* Keep the entire window inside the visible browser area */
+    top: auto;
+    left: auto;
+    width: min(400px, calc(100vw - 32px));
+    height: min(600px, calc(100dvh - 120px));
+    max-height: calc(100vh - 120px);
 
-position:fixed;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
 
-bottom:115px;
-
-right:30px;
-
-width:430px;
-
-height:680px;
-
-border-radius:28px;
-
-overflow:hidden;
-
-display:none;
-
-flex-direction:column;
-
-background:rgba(255,255,255,.75);
-
-backdrop-filter:blur(24px);
-
-box-shadow:
-
-0 25px 70px rgba(0,0,0,.18);
-
-z-index:9999;
-
-border:1px solid rgba(255,255,255,.45);
-
-animation:popup .35s ease;
-
+    z-index: 9999;
 }
 
-@keyframes popup{
-
-from{
-
-opacity:0;
-
-transform:translateY(40px) scale(.9);
-
+/* Keep the header visible at the top of the chat window */
+.ai-chat-header {
+    flex-shrink: 0;
+    position: relative;
+    top: auto;
 }
 
-to{
-
-opacity:1;
-
-transform:translateY(0) scale(1);
-
+/* Let messages scroll instead of pushing the window outside the screen */
+.ai-chat-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
 }
 
+/* Keep the input area visible at the bottom */
+.ai-chat-input {
+    flex-shrink: 0;
 }
+
+/* Adjust for smaller laptop screens and mobile devices */
+@media (max-height: 700px) {
+    .ai-chat-window {
+        bottom: 16px;
+        height: calc(100dvh - 32px);
+        max-height: calc(100vh - 32px);
+    }
+}
+
+@media (max-width: 480px) {
+    .ai-chat-window {
+        right: 8px;
+        bottom: 12px;
+        width: calc(100vw - 16px);
+        height: calc(100dvh - 24px);
+        max-height: calc(100vh - 24px);
+    }
+}
+
 
 .ai-chat-window.show{
 
@@ -962,4 +964,125 @@ transition:.3s;
 
 background:#274cff;
 
+}
+
+/* ================= FORM 16 TAX OVERVIEW ================= */
+
+.form16-panel {
+    margin-bottom: 24px;
+}
+
+.form16-subtitle {
+    margin: 6px 0 0;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.form16-status {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    background: rgba(34, 197, 94, 0.12);
+}
+
+.form16-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+}
+
+.form16-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid rgba(128, 128, 128, 0.18);
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+}
+
+.form16-metric-label {
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.form16-metric strong {
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.form16-details {
+    margin-top: 18px;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+    padding-top: 16px;
+}
+
+.form16-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 8px 0;
+}
+
+.form16-table-wrap {
+    margin-top: 14px;
+    overflow-x: auto;
+}
+
+.form16-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.form16-table th,
+.form16-table td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.16);
+    overflow-wrap: anywhere;
+}
+
+.form16-table th {
+    font-size: 13px;
+    opacity: 0.75;
+}
+
+.form16-table td {
+    font-size: 14px;
+}
+
+.form16-table td:last-child {
+    font-weight: 500;
+}
+
+.form16-disclaimer {
+    margin-top: 16px;
+    font-size: 12px;
+    line-height: 1.6;
+    opacity: 0.7;
+}
+
+.form16-upload-link {
+    display: inline-block;
+    margin-top: 12px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .form16-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .form16-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form16-metric strong {
+        font-size: 17px;
+    }
 }

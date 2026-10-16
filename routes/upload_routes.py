@@ -223,8 +223,19 @@ def _handle_upload(doc_key):
 
                 pipeline = OCRPipeline()
 
-                result = pipeline.process(filepath)
-
+                result = pipeline.process(
+                filepath,
+                document_type=doc_key
+                )
+                print("\n========== OCR DEBUG ==========")
+                print("Document type:", doc_key)
+                print("Raw OCR text:")
+                print(result.get("raw_text", "<missing raw_text>"))
+                print("\nCleaned OCR text:")
+                print(result.get("clean_text", "<missing clean_text>"))
+                print("\nExtracted entities:")
+                print(result.get("entities", {}))
+                print("================================\n")
                 # ---------------------------
                 # Save OCR Result
                 # ---------------------------
@@ -239,23 +250,26 @@ def _handle_upload(doc_key):
                     result["confidence"]
                 )
 
-                # ---------------------------
+               # ---------------------------
                 # Tax Processing
                 # ---------------------------
 
-                tax_engine = TaxEngine()
+                if doc_key == "form16":
+                    tax_engine = TaxEngine()
+                    tax_result = tax_engine.calculate(result["entities"])
 
-                tax_result = tax_engine.calculate(result["entities"])
+                    report = TaxReport().generate(tax_result)
 
-                report = TaxReport().generate(tax_result)
+                    tax_db = TaxDatabaseService()
+                    tax_db.save(
+                        document.id,
+                        tax_result,
+                        report
+                    )
 
-                tax_db = TaxDatabaseService()
-
-                tax_db.save(
-                    document.id,
-                    tax_result,
-                    report
-                )
+                # Other document types are OCR-processed and saved.
+                # They should be incorporated into the consolidated financial
+                # profile before tax calculation.
 
                 document.ocr_status = "Completed"
                 document.processed = True

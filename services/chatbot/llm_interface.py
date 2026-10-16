@@ -1,47 +1,56 @@
+
+"""
+LLM Interface
+-------------
+Handles communication with the Google Gemini API.
+"""
+
+import logging
 import os
 
 from google import genai
 from google.genai import types
 
+logger = logging.getLogger(__name__)
+
 
 class LLMInterface:
+    MODEL_NAME = "gemini-3.5-flash-lite"
 
     def __init__(self):
-
         api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            raise Exception("Gemini API Key not found.")
+            raise RuntimeError(
+                "Gemini API key is not configured. "
+                "Set the GEMINI_API_KEY environment variable."
+            )
 
         self.client = genai.Client(api_key=api_key)
 
     def generate(self, prompt):
-
-        print("\n==============================")
-        print(">>> USING NEW LLM INTERFACE <<<")
-        print("==============================")
-        print("Model : gemini-3.5-flash-lite")
-        print("Prompt :", prompt[:150])
+        if not isinstance(prompt, str) or not prompt.strip():
+            raise ValueError("The AI prompt cannot be empty.")
 
         try:
-
             response = self.client.models.generate_content(
-                model="gemini-3.5-flash-lite",
+                model=self.MODEL_NAME,
                 contents=prompt,
                 config=types.GenerateContentConfig(
-                    temperature=0.7,
-                    max_output_tokens=1024
-                )
+                    temperature=0.4,
+                    max_output_tokens=1024,
+                ),
             )
 
-            print("\nGemini Response Received\n")
+            answer = response.text
 
-            return response.text
+            if not isinstance(answer, str) or not answer.strip():
+                raise RuntimeError(
+                    "Gemini returned an empty response."
+                )
 
-        except Exception as e:
+            return answer.strip()
 
-            print("\nGemini ERROR:")
-            print(type(e))
-            print(e)
-
-            return f"Error: {e}"
+        except Exception:
+            logger.exception("Gemini response generation failed")
+            raise

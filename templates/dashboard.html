@@ -1,311 +1,732 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard · CAAI</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-</head>
-<body>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard · CAAI</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <style>
+        .form16-panel {
+            margin-bottom: 24px;
+        }
+
+        .form16-subtitle {
+            margin: 6px 0 0;
+            font-size: 13px;
+            opacity: 0.7;
+            line-height: 1.5;
+        }
+
+        .form16-status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            background: rgba(34, 197, 94, 0.12);
+        }
+
+        .form16-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin: 20px 0;
+        }
+
+        .form16-metric {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 0;
+            padding: 18px;
+            border: 1px solid rgba(128, 128, 128, 0.18);
+            border-radius: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .form16-metric-label {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .form16-metric strong {
+            font-size: 19px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .form16-details {
+            margin-top: 18px;
+            border-top: 1px solid rgba(128, 128, 128, 0.2);
+            padding-top: 16px;
+        }
+
+        .form16-details summary {
+            cursor: pointer;
+            font-weight: 600;
+            padding: 8px 0;
+        }
+
+        .form16-table-wrap {
+            margin-top: 14px;
+            overflow-x: auto;
+        }
+
+        .form16-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .form16-table th,
+        .form16-table td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.16);
+            overflow-wrap: anywhere;
+            vertical-align: top;
+        }
+
+        .form16-table th {
+            font-size: 13px;
+            opacity: 0.75;
+        }
+
+        .form16-table td {
+            font-size: 14px;
+        }
+
+        .form16-table td:last-child {
+            font-weight: 500;
+        }
+
+        .form16-disclaimer {
+            margin-top: 16px;
+            font-size: 12px;
+            line-height: 1.6;
+            opacity: 0.7;
+        }
+
+        .form16-upload-link {
+            display: inline-block;
+            margin-top: 12px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form16-identity {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+            margin-top: 14px;
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .form16-identity span {
+            overflow-wrap: anywhere;
+        }
+
+        .recommendation-card {
+            margin-top: 14px;
+        }
+
+        .recommendation-card h3 {
+            margin: 8px 0;
+        }
+
+        .recommendation-message,
+        .recommendation-reason {
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .recommendation-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .recommendation-evidence {
+            overflow-x: auto;
+        }
+
+        .recommendation-evidence pre {
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            font-size: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .form16-summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 520px) {
+            .form16-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form16-metric strong {
+                font-size: 17px;
+            }
+
+            .form16-table th,
+            .form16-table td {
+                padding: 9px;
+            }
+        }
+    </style>
+</head>
+
+<body>
 <div class="app-shell">
 
-  <!-- ================= SIDEBAR ================= -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <span class="brand-mark">C</span>
-      <span class="brand-name">CAAI</span>
-      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Collapse sidebar">‹</button>
-    </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
 
-    <nav class="sidebar-nav">
-      <a href="{{ url_for('dashboard.dashboard_home') }}" class="nav-item active">
-        <span class="nav-icon">▦</span><span class="nav-label">Dashboard</span>
-      </a>
-      <a href="{{ url_for('upload.upload_hub') }}" class="nav-item">
-        <span class="nav-icon">⇧</span><span class="nav-label">Upload Documents</span>
-      </a>
-      <a href="{{ url_for('dashboard.tax_summary_placeholder') }}" class="nav-item">
-        <span class="nav-icon">Σ</span><span class="nav-label">Tax Summary</span>
-      </a>
-      <a href="#" class="nav-item" id="sidebarAiAssistant">
-        <span class="nav-icon">✦</span><span class="nav-label">AI Assistant</span>
-      </a>
-      <a href="{{ url_for('dashboard.reports_placeholder') }}" class="nav-item">
-        <span class="nav-icon">▤</span><span class="nav-label">Reports</span>
-      </a>
-      <a href="{{ url_for('dashboard.profile_placeholder') }}" class="nav-item">
-        <span class="nav-icon">◉</span><span class="nav-label">Profile</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <a href="{{ url_for('auth.logout') }}" class="nav-item logout">
-        <span class="nav-icon">⏻</span><span class="nav-label">Logout</span>
-      </a>
-    </div>
-  </aside>
-
-  <!-- ================= MAIN ================= -->
-  <div class="main">
-
-    <!-- Top navbar -->
-    <header class="navbar">
-      <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">☰</button>
-
-      <div class="navbar-search">
-        <span class="search-icon">⌕</span>
-        <input type="text" placeholder="Search documents, reports, actions…">
-      </div>
-
-      <div class="navbar-actions">
-        <button class="icon-btn" id="notifBtn" aria-label="Notifications">
-          🔔<span class="notif-dot"></span>
-        </button>
-        <div class="notif-dropdown" id="notifDropdown">
-          <p class="notif-title">Notifications</p>
-          <p class="notif-empty">You're all caught up. Nothing needs your attention right now.</p>
+        <div class="sidebar-brand">
+            <span class="brand-mark">C</span>
+            <span class="brand-name">CAAI</span>
+            <button class="sidebar-toggle" id="sidebarToggle"
+                    aria-label="Collapse sidebar">‹</button>
         </div>
 
-        <button class="icon-btn" id="darkModeBtn" aria-label="Toggle dark mode">◐</button>
+        <nav class="sidebar-nav">
 
-        <div class="navbar-profile">
-          <span class="avatar">{{ (user.name[0] if user and user.name else "U") | upper }}</span>
+            <a href="{{ url_for('dashboard.dashboard_home') }}"
+               class="nav-item active">
+                <span class="nav-icon">▦</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('upload.upload_hub') }}" class="nav-item">
+                <span class="nav-icon">⇧</span>
+                <span class="nav-label">Upload Documents</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.tax_summary') }}" class="nav-item">
+                <span class="nav-icon">Σ</span>
+                <span class="nav-label">Tax Summary</span>
+            </a>
+
+            <!-- Dedicated AI Assistant page -->
+            <a href="{{ url_for('chatbot.chat_page') }}" class="nav-item">
+                <span class="nav-icon">✦</span>
+                <span class="nav-label">AI Assistant</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.reports_placeholder') }}"
+               class="nav-item">
+                <span class="nav-icon">▤</span>
+                <span class="nav-label">Reports</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.profile_placeholder') }}"
+               class="nav-item">
+                <span class="nav-icon">◉</span>
+                <span class="nav-label">Profile</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="nav-item logout">
+                <span class="nav-icon">⏻</span>
+                <span class="nav-label">Logout</span>
+            </a>
         </div>
-      </div>
-    </header>
 
-    <!-- Scrollable content -->
-    <main class="content">
+    </aside>
 
-      <!-- Welcome + Tax Efficiency Score -->
-      <section class="welcome-row">
-        <div class="welcome-card">
-          <p class="eyebrow">Financial Year 2026–27</p>
-          <h1>Welcome, {{ user.name if user and user.name else "there" }} 👋</h1>
-          <p class="welcome-sub">Here's where your taxes stand today, and what to do next.</p>
-        </div>
+    <!-- MAIN CONTENT -->
+    <div class="main">
 
-        <div class="score-card">
-          <div class="gauge" id="taxGauge">
-            <svg viewBox="0 0 120 120">
-              <circle class="gauge-track" cx="60" cy="60" r="52"></circle>
-              <circle class="gauge-value" cx="60" cy="60" r="52" id="gaugeCircle"></circle>
-            </svg>
-            <div class="gauge-label">
-              <span class="gauge-number" id="gaugeNumber">0</span>
-              <span class="gauge-unit">/ 100</span>
+        <header class="navbar">
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn"
+                    aria-label="Open menu">☰</button>
+
+            <div class="navbar-search">
+                <span class="search-icon">⌕</span>
+                <input type="text"
+                       placeholder="Search documents, reports, actions…">
             </div>
-          </div>
-          <p class="gauge-caption">Tax Efficiency Score</p>
-          <p class="gauge-hint">Improves as documents, deductions and investments are added.</p>
-        </div>
-      </section>
 
-      <!-- Stat cards -->
-      <section class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-icon">⇧</span>
-          <p class="stat-value" data-count="{{ stats.documents_uploaded }}">0</p>
-          <p class="stat-label">Documents Uploaded</p>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">Σ</span>
-          <p class="stat-value" data-prefix="₹" data-count="{{ stats.estimated_tax }}">₹0</p>
-          <p class="stat-label">Estimated Tax</p>
-        </div>
-        <div class="stat-card accent">
-          <span class="stat-icon">↓</span>
-          <p class="stat-value" data-prefix="₹" data-count="{{ stats.potential_savings }}">₹0</p>
-          <p class="stat-label">Potential Savings</p>
-        </div>
-        <div class="stat-card">
-          <span class="stat-icon">✦</span>
-          <p class="stat-value" data-count="{{ stats.ai_recommendations }}">0</p>
-          <p class="stat-label">AI Recommendations</p>
-        </div>
-      </section>
+            <div class="navbar-actions">
 
-      <!-- Quick actions -->
-      <section class="panel">
-        <div class="panel-header">
-          <h2>Quick Actions</h2>
-        </div>
-        <div class="quick-actions">
-          <a href="{{ url_for('upload.upload_form16') }}" class="qa-card">
-            <span class="qa-icon">📄</span>
-            <span class="qa-title">Upload Form 16</span>
-          </a>
-          <a href="{{ url_for('upload.upload_salary_slip') }}" class="qa-card">
-            <span class="qa-icon">🧾</span>
-            <span class="qa-title">Upload Salary Slip</span>
-          </a>
-          <a href="{{ url_for('upload.upload_bank_statement') }}" class="qa-card">
-            <span class="qa-icon">🏦</span>
-            <span class="qa-title">Upload Bank Statement</span>
-          </a>
-          <a href="#" class="qa-card" id="quickAiAssistant">
-            <span class="qa-icon">✦</span>
-            <span class="qa-title">Ask AI Assistant</span>
-          </a>
-          <a href="{{ url_for('dashboard.reports_placeholder') }}" class="qa-card">
-            <span class="qa-icon">▤</span>
-            <span class="qa-title">Generate Report</span>
-          </a>
-        </div>
-      </section>
+                <button class="icon-btn" id="notifBtn"
+                        aria-label="Notifications">
+                    🔔<span class="notif-dot"></span>
+                </button>
 
-      <div class="two-col">
-        <!-- Recent activity -->
-        <section class="panel">
-          <div class="panel-header">
-            <h2>Recent Activity</h2>
-          </div>
-          <div class="activity-list">
-            {% if recent_activity and recent_activity|length > 0 %}
-              {% for item in recent_activity %}
-              <div class="activity-item">
-                <span class="activity-dot"></span>
-                <span class="activity-text">{{ item.text }}</span>
-                <span class="activity-time">{{ item.time }}</span>
-              </div>
-              {% endfor %}
-            {% else %}
-              <div class="empty-state">
-                <p class="empty-title">No recent activity yet</p>
-                <p class="empty-sub">Upload your first document to start building your tax profile.</p>
-              </div>
-            {% endif %}
-          </div>
-        </section>
+                <div class="notif-dropdown" id="notifDropdown">
+                    <p class="notif-title">Notifications</p>
+                    <p class="notif-empty">
+                        You're all caught up. Nothing needs your attention right now.
+                    </p>
+                </div>
 
-        <!-- Tax calendar + AI tip -->
-        <section class="panel">
-          <div class="panel-header">
-            <h2>Tax Calendar</h2>
-          </div>
-          <ul class="calendar-list">
-            {% for item in tax_calendar %}
-            <li class="calendar-item">
-              <span class="calendar-date">{{ item.date }}</span>
-              <span class="calendar-label">{{ item.label }}</span>
-            </li>
-            {% endfor %}
-          </ul>
+                <button class="icon-btn" id="darkModeBtn"
+                        aria-label="Toggle dark mode">◐</button>
 
-          <div class="ai-tip-card">
-            <span class="ai-tip-badge">AI Tip</span>
-            <p>{{ ai_tip }}</p>
-          </div>
-        </section>
-      </div>
+                <a href="{{ url_for('dashboard.profile_placeholder') }}"
+                   class="navbar-profile"
+                   aria-label="Open profile"
+                   style="text-decoration:none;">
+                    <span class="avatar">
+                        {{ (user.name[0] if user and user.name else "U") | upper }}
+                    </span>
+                </a>
 
-      <footer class="dash-footer">
-        <p>© 2026 CAAI — AI Powered Tax Advisor · Version 1.0</p>
-      </footer>
+            </div>
+        </header>
 
-    </main>
-  </div>
+        <main class="content">
+
+            <!-- WELCOME AND TAX EFFICIENCY -->
+            <section class="welcome-row">
+
+                <div class="welcome-card">
+                    <p class="eyebrow">Financial Year 2026–27</p>
+
+                    <h1>
+                        Welcome, {{ user.name if user and user.name else "there" }} 👋
+                    </h1>
+
+                    <p class="welcome-sub">
+                        Here's where your taxes stand today, and what to do next.
+                    </p>
+                </div>
+
+                <div class="score-card">
+
+                    <div class="gauge" id="taxGauge">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="gauge-track"
+                                    cx="60" cy="60" r="52"></circle>
+
+                            <circle class="gauge-value"
+                                    cx="60" cy="60" r="52"
+                                    id="gaugeCircle"></circle>
+                        </svg>
+
+                        <div class="gauge-label">
+                            <span class="gauge-number" id="gaugeNumber">0</span>
+                            <span class="gauge-unit">/ 100</span>
+                        </div>
+                    </div>
+
+                    <p class="gauge-caption">Tax Efficiency Score</p>
+                    <p class="gauge-hint">
+                        Improves as documents, deductions and investments are added.
+                    </p>
+
+                </div>
+            </section>
+
+            <!-- STAT CARDS -->
+            <section class="stats-grid">
+
+                <div class="stat-card">
+                    <span class="stat-icon">⇧</span>
+                    <p class="stat-value"
+                       data-count="{{ stats.documents_uploaded }}">0</p>
+                    <p class="stat-label">Documents Uploaded</p>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">Σ</span>
+
+                    {% if stats.estimated_tax is not none %}
+                    <p class="stat-value"
+                       data-prefix="₹"
+                       data-count="{{ stats.estimated_tax }}">
+                        ₹{{ "{:,.0f}".format(stats.estimated_tax) }}
+                    </p>
+                    {% else %}
+                    <p class="stat-value">Not available</p>
+                    {% endif %}
+
+                    <p class="stat-label">Estimated Tax</p>
+                </div>
+
+                <div class="stat-card accent">
+                    <span class="stat-icon">↓</span>
+                    <p class="stat-value"
+                       data-prefix="₹"
+                       data-count="{{ stats.potential_savings }}">₹0</p>
+                    <p class="stat-label">Potential Savings</p>
+                </div>
+
+                <div class="stat-card">
+                    <span class="stat-icon">✦</span>
+                    <p class="stat-value"
+                       data-count="{{ stats.ai_recommendations }}">0</p>
+                    <p class="stat-label">AI Recommendations</p>
+                </div>
+
+            </section>
+
+            <!-- FORM 16 TAX OVERVIEW -->
+            <section class="panel form16-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Form 16 Tax Overview</h2>
+                        <p class="form16-subtitle">
+                            Latest extracted information from your uploaded Form 16
+                        </p>
+                    </div>
+
+                    {% if form16_document %}
+                    <span class="form16-status">
+                        {{ form16_document.ocr_status or "Uploaded" }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                {% if form16_summary %}
+
+                    {% if form16_entities.get('employee_name') or
+                          form16_entities.get('employee_pan') %}
+                    <div class="form16-identity">
+
+                        {% if form16_entities.get('employee_name') %}
+                        <span>
+                            <strong>Employee:</strong>
+                            {{ form16_entities.get('employee_name') }}
+                        </span>
+                        {% endif %}
+
+                        {% if form16_entities.get('employee_pan') %}
+                        <span>
+                            <strong>PAN:</strong>
+                            {{ form16_entities.get('employee_pan') }}
+                        </span>
+                        {% endif %}
+
+                        {% if form16_entities.get('employer_name') %}
+                        <span>
+                            <strong>Employer:</strong>
+                            {{ form16_entities.get('employer_name') }}
+                        </span>
+                        {% endif %}
+
+                    </div>
+                    {% endif %}
+
+                    <div class="form16-summary-grid">
+                        {% for item in form16_summary %}
+                        <div class="form16-metric">
+                            <span class="form16-metric-label">
+                                {{ item.label }}
+                            </span>
+                            <strong>{{ item.value }}</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <details class="form16-details">
+                        <summary>View all extracted Form 16 fields</summary>
+
+                        <div class="form16-table-wrap">
+                            <table class="form16-table">
+                                <thead>
+                                    <tr>
+                                        <th>Field</th>
+                                        <th>Extracted value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in form16_details %}
+                                    <tr>
+                                        <td>{{ item.label }}</td>
+                                        <td>{{ item.value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+
+                    <p class="form16-disclaimer">
+                        Values are displayed from the saved OCR extraction.
+                        “Not available” indicates a missing value, not zero.
+                        Verify the original Form 16 before making tax decisions.
+                    </p>
+
+                {% elif form16_document %}
+
+                    <div class="empty-state">
+                        <p class="empty-title">
+                            Form 16 uploaded, but extracted data is unavailable
+                        </p>
+                        <p class="empty-sub">
+                            Check the document's OCR status or upload processing logs.
+                        </p>
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+                        <p class="empty-title">No Form 16 found</p>
+                        <p class="empty-sub">
+                            Upload your Form 16 to view your extracted salary,
+                            deductions, taxable income and tax breakdown here.
+                        </p>
+                        <a href="{{ url_for('upload.upload_form16') }}"
+                           class="form16-upload-link">
+                            Upload Form 16
+                        </a>
+                    </div>
+
+                {% endif %}
+            </section>
+
+            <!-- AI TAX RECOMMENDATIONS -->
+            <section class="panel form16-panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>AI Tax Recommendations</h2>
+                        <p class="form16-subtitle">
+                            Recommendations based on your saved financial documents
+                        </p>
+                    </div>
+                </div>
+
+                {% if tax_result %}
+                <div class="form16-identity">
+                    <span>
+                        <strong>Recommended regime:</strong>
+                        {{ tax_result.recommended_regime or "Not available" }}
+                    </span>
+
+                    <span>
+                        <strong>Tax difference:</strong>
+                        ₹{{ "{:,.2f}".format(tax_result.tax_saved or 0) }}
+                    </span>
+
+                    <span>
+                        <strong>Status:</strong>
+                        {{ tax_result.recommendation_status or "Pending validation" }}
+                    </span>
+                </div>
+
+                <p class="form16-disclaimer">
+                    The tax difference is an estimate based on the available
+                    extracted information. It is not a guaranteed saving.
+                    Verify the financial year, income, deductions and applicable
+                    tax rules before relying on this estimate.
+                </p>
+                {% endif %}
+
+                {% if profile_validation and profile_validation.errors %}
+                <div class="empty-state">
+                    <p class="empty-title">Please review your financial profile</p>
+                    <ul>
+                        {% for error in profile_validation.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {% if recommendations %}
+
+                    {% for item in recommendations %}
+                    <article class="form16-metric recommendation-card">
+
+                        <div class="recommendation-meta">
+                            <span>
+                                <strong>{{ item.category or "General" }}</strong>
+                            </span>
+                            <span>
+                                Priority: {{ item.priority or "Not specified" }}
+                            </span>
+                        </div>
+
+                        <h3>{{ item.title or "Tax recommendation" }}</h3>
+
+                        <p class="recommendation-message">
+                            {{ item.message or "Review the recommendation details." }}
+                        </p>
+
+                        {% if item.reason %}
+                        <p class="form16-subtitle recommendation-reason">
+                            <strong>Why:</strong> {{ item.reason }}
+                        </p>
+                        {% endif %}
+
+                        {% if item.evidence %}
+                        <details class="form16-details recommendation-evidence">
+                            <summary>View supporting evidence</summary>
+                            <pre>{{ item.evidence | tojson(indent=2) }}</pre>
+                        </details>
+                        {% endif %}
+
+                    </article>
+                    {% endfor %}
+
+                {% elif not tax_result %}
+
+                    <div class="empty-state">
+                        <p class="empty-title">Tax estimate not available</p>
+                        <p class="empty-sub">
+                            Upload and verify a Form 16 or provide sufficient
+                            annual income information before generating recommendations.
+                        </p>
+                        <a href="{{ url_for('upload.upload_form16') }}"
+                           class="form16-upload-link">
+                            Upload Form 16
+                        </a>
+                    </div>
+
+                {% else %}
+
+                    <div class="empty-state">
+                        <p class="empty-title">No recommendations to display</p>
+                        <p class="empty-sub">
+                            No recommendations were returned. Review the
+                            recommendation validation result or check the
+                            application logs for errors.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+                {% if recommendation_result and recommendation_result.errors %}
+                <p class="form16-disclaimer">
+                    <strong>Recommendation service messages:</strong>
+                    {{ recommendation_result.errors | join("; ") }}
+                </p>
+                {% endif %}
+
+                {% if recommendation_result and recommendation_result.warnings %}
+                <p class="form16-disclaimer">
+                    <strong>Warnings:</strong>
+                    {{ recommendation_result.warnings | join("; ") }}
+                </p>
+                {% endif %}
+
+            </section>
+
+            <!-- QUICK ACTIONS -->
+            <section class="panel">
+
+                <div class="panel-header">
+                    <h2>Quick Actions</h2>
+                </div>
+
+                <div class="quick-actions">
+
+                    <a href="{{ url_for('upload.upload_form16') }}"
+                       class="qa-card">
+                        <span class="qa-icon">📄</span>
+                        <span class="qa-title">Upload Form 16</span>
+                    </a>
+
+                    <a href="{{ url_for('upload.upload_salary_slip') }}"
+                       class="qa-card">
+                        <span class="qa-icon">🧾</span>
+                        <span class="qa-title">Upload Salary Slip</span>
+                    </a>
+
+                    <a href="{{ url_for('upload.upload_bank_statement') }}"
+                       class="qa-card">
+                        <span class="qa-icon">🏦</span>
+                        <span class="qa-title">Upload Bank Statement</span>
+                    </a>
+
+                    <a href="{{ url_for('chatbot.chat_page') }}"
+                       class="qa-card">
+                        <span class="qa-icon">✦</span>
+                        <span class="qa-title">Ask AI Assistant</span>
+                    </a>
+
+                    <a href="{{ url_for('dashboard.reports_placeholder') }}"
+                       class="qa-card">
+                        <span class="qa-icon">▤</span>
+                        <span class="qa-title">Generate Report</span>
+                    </a>
+
+                </div>
+            </section>
+
+            <!-- RECENT ACTIVITY AND TAX CALENDAR -->
+            <div class="two-col">
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Recent Activity</h2>
+                    </div>
+
+                    <div class="activity-list">
+                        {% if recent_activity and recent_activity|length > 0 %}
+
+                            {% for item in recent_activity %}
+                            <div class="activity-item">
+                                <span class="activity-dot"></span>
+                                <span class="activity-text">{{ item.text }}</span>
+                                <span class="activity-time">{{ item.time }}</span>
+                            </div>
+                            {% endfor %}
+
+                        {% else %}
+
+                            <div class="empty-state">
+                                <p class="empty-title">No recent activity yet</p>
+                                <p class="empty-sub">
+                                    Upload your first document to start building
+                                    your tax profile.
+                                </p>
+                            </div>
+
+                        {% endif %}
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <h2>Tax Calendar</h2>
+                    </div>
+
+                    <ul class="calendar-list">
+                        {% for item in tax_calendar %}
+                        <li class="calendar-item">
+                            <span class="calendar-date">{{ item.date }}</span>
+                            <span class="calendar-label">{{ item.label }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="ai-tip-card">
+                        <span class="ai-tip-badge">AI Tip</span>
+                        <p>{{ ai_tip }}</p>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- FOOTER -->
+            <footer class="dash-footer">
+                <p>© 2026 CAAI — AI Powered Tax Advisor · Version 1.0</p>
+            </footer>
+
+        </main>
+    </div>
 </div>
 
-<!-- ================= AI ASSISTANT FLOATING BUTTON ================= -->
-
-<div class="ai-fab" id="aiFab">
-
-    <div class="ai-fab-ring"></div>
-
-    <div class="ai-fab-core">
-        🤖
-    </div>
-
-</div>
-
-
-<!-- ================= AI CHAT WINDOW ================= -->
-
-<div class="ai-chat-window" id="aiChatWindow">
-
-    <div class="ai-chat-header">
-
-        <div class="ai-header-left">
-
-            <div class="ai-avatar">
-                🤖
-            </div>
-
-            <div>
-
-                <h3>AI Tax Assistant</h3>
-
-                <span>
-                    <span class="online-dot"></span>
-                    Powered by Gemini
-                </span>
-
-            </div>
-
-        </div>
-
-        <button id="closeChat">
-            ✕
-        </button>
-
-    </div>
-
-
-    <div class="ai-chat-body" id="chatMessages">
-
-        <div class="welcome-box">
-
-            <h2>👋 Welcome {{ user.name }}</h2>
-
-            <p>
-                Ask me anything about your tax, deductions,
-                Form 16 or tax regime.
-            </p>
-
-            <div class="quick-prompts">
-
-                <button class="prompt-btn">
-                    Which regime is better?
-                </button>
-
-                <button class="prompt-btn">
-                    Can I save more tax?
-                </button>
-
-                <button class="prompt-btn">
-                    Explain Form 16
-                </button>
-
-                <button class="prompt-btn">
-                    What is my taxable income?
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="ai-chat-input">
-
-        <input
-            type="text"
-            id="chatInput"
-            placeholder="Ask your AI Tax Assistant..."
-        >
-
-        <button id="sendMessage">
-            ➜
-        </button>
-
-    </div>
-
-</div>
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
 </body>
 </html>

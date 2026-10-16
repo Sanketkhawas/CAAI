@@ -1,0 +1,803 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports · CAAI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <style>
+        .reports-intro {
+            margin-bottom: 24px;
+        }
+
+        .reports-intro p {
+            opacity: .72;
+            line-height: 1.6;
+        }
+
+        .report-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0 24px;
+        }
+
+        .report-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 17px;
+            border: 1px solid rgba(128,128,128,.25);
+            border-radius: 10px;
+            cursor: pointer;
+            font: 600 13px Inter, sans-serif;
+            text-decoration: none;
+            transition: transform .2s, opacity .2s;
+        }
+
+        .report-btn:hover {
+            transform: translateY(-1px);
+            opacity: .9;
+        }
+
+        .report-btn-primary {
+            background: #d6b36a;
+            color: #172033;
+            border-color: #d6b36a;
+        }
+
+        .report-btn-secondary {
+            background: transparent;
+            color: inherit;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin: 20px 0 26px;
+        }
+
+        .report-metric {
+            min-width: 0;
+            padding: 20px;
+            border: 1px solid rgba(128,128,128,.2);
+            border-radius: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .report-metric-label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 13px;
+            opacity: .7;
+        }
+
+        .report-metric strong {
+            font-size: 21px;
+            line-height: 1.4;
+            overflow-wrap: anywhere;
+        }
+
+        .report-metric small {
+            display: block;
+            margin-top: 8px;
+            font-size: 12px;
+            opacity: .65;
+        }
+
+        .report-section {
+            margin-bottom: 24px;
+        }
+
+        .report-section .panel-header {
+            margin-bottom: 18px;
+        }
+
+        .report-subtitle {
+            margin-top: 6px;
+            font-size: 13px;
+            line-height: 1.6;
+            opacity: .7;
+        }
+
+        .report-status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: rgba(214,179,106,.16);
+            font-size: 12px;
+        }
+
+        .report-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 13px 12px;
+            border-bottom: 1px solid rgba(128,128,128,.17);
+            vertical-align: top;
+            overflow-wrap: anywhere;
+        }
+
+        .report-table th {
+            font-size: 12px;
+            opacity: .7;
+        }
+
+        .report-table td {
+            font-size: 13px;
+        }
+
+        .report-table td:last-child {
+            font-weight: 500;
+        }
+
+        .report-note {
+            margin-top: 16px;
+            font-size: 12px;
+            line-height: 1.7;
+            opacity: .7;
+        }
+
+        .report-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .report-list-item {
+            padding: 16px;
+            border: 1px solid rgba(128,128,128,.18);
+            border-radius: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .report-list-item h3 {
+            margin: 0 0 8px;
+            font-size: 15px;
+        }
+
+        .report-list-item p {
+            margin: 5px 0;
+            font-size: 13px;
+            line-height: 1.6;
+            opacity: .8;
+        }
+
+        .report-empty {
+            padding: 24px 16px;
+            text-align: center;
+            border: 1px dashed rgba(128,128,128,.3);
+            border-radius: 12px;
+        }
+
+        .report-empty h3 {
+            margin-bottom: 8px;
+        }
+
+        .report-empty p {
+            font-size: 13px;
+            line-height: 1.6;
+            opacity: .7;
+        }
+
+        .report-upload-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: inherit;
+            font-weight: 600;
+        }
+
+        .report-validation {
+            padding: 16px;
+            margin-top: 16px;
+            border: 1px solid rgba(214,179,106,.45);
+            border-radius: 12px;
+            background: rgba(214,179,106,.08);
+        }
+
+        .report-validation h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .report-validation ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        .report-validation li {
+            margin: 7px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .report-footer {
+            padding: 20px 0;
+            text-align: center;
+            font-size: 12px;
+            opacity: .65;
+        }
+
+        @media (max-width: 900px) {
+            .report-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 520px) {
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-actions {
+                flex-direction: column;
+            }
+
+            .report-btn {
+                width: 100%;
+            }
+
+            .report-metric strong {
+                font-size: 19px;
+            }
+
+            .report-table th,
+            .report-table td {
+                padding: 10px 8px;
+            }
+        }
+
+        @media print {
+            .sidebar,
+            .navbar,
+            .report-actions,
+            .mobile-menu-btn,
+            .report-upload-link {
+                display: none !important;
+            }
+
+            .app-shell,
+            .main,
+            .content {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-section,
+            .report-metric,
+            .report-list-item {
+                break-inside: avoid;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .panel,
+            .report-metric,
+            .report-list-item {
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app-shell">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-mark">C</span>
+            <span class="brand-name">CAAI</span>
+            <button class="sidebar-toggle" id="sidebarToggle"
+                    aria-label="Collapse sidebar">‹</button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard.dashboard_home') }}" class="nav-item">
+                <span class="nav-icon">▦</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('upload.upload_hub') }}" class="nav-item">
+                <span class="nav-icon">⇧</span>
+                <span class="nav-label">Upload Documents</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.tax_summary') }}" class="nav-item">
+                <span class="nav-icon">Σ</span>
+                <span class="nav-label">Tax Summary</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.chatbot_placeholder') }}" class="nav-item">
+                <span class="nav-icon">✦</span>
+                <span class="nav-label">AI Assistant</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.reports_placeholder') }}"
+               class="nav-item active">
+                <span class="nav-icon">▤</span>
+                <span class="nav-label">Reports</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.profile_placeholder') }}" class="nav-item">
+                <span class="nav-icon">◉</span>
+                <span class="nav-label">Profile</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="nav-item logout">
+                <span class="nav-icon">⏻</span>
+                <span class="nav-label">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="navbar">
+            <button class="mobile-menu-btn" id="mobileMenuBtn"
+                    aria-label="Open menu">☰</button>
+
+            <div>
+                <h2 class="page-title">Reports</h2>
+            </div>
+
+            <div class="navbar-actions">
+                <button class="icon-btn" id="darkModeBtn"
+                        aria-label="Toggle dark mode">◐</button>
+
+                <a href="{{ url_for('dashboard.profile_placeholder') }}"
+                   class="navbar-profile"
+                   aria-label="Open profile"
+                   style="text-decoration:none">
+                    <span class="avatar">
+                        {{ (user.name[0] if user and user.name else "U") | upper }}
+                    </span>
+                </a>
+            </div>
+        </header>
+
+        <main class="content">
+
+            <section class="reports-intro">
+                <p class="eyebrow">YOUR FINANCIAL OVERVIEW</p>
+                <h1>Tax Reports</h1>
+                <p>
+                    Review your tax calculation, Form 16 information,
+                    uploaded documents and available recommendations.
+                </p>
+
+                <div class="report-actions">
+                    <button type="button" class="report-btn report-btn-primary"
+                            id="downloadReportBtn">
+                        ↓ Download Report
+                    </button>
+
+                    <button type="button" class="report-btn report-btn-secondary"
+                            id="printReportBtn">
+                        Print / Save as PDF
+                    </button>
+
+                    <a href="{{ url_for('dashboard.tax_summary') }}"
+                       class="report-btn report-btn-secondary">
+                        View Tax Summary →
+                    </a>
+                </div>
+            </section>
+
+            <div id="reportContent">
+
+                <section class="panel report-section">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Tax Calculation Overview</h2>
+                            <p class="report-subtitle">
+                                Values are taken from the latest saved calculation
+                                where available; otherwise, the current engine estimate is shown.
+                            </p>
+                        </div>
+
+                        <span class="report-status">
+                            {{ data_source }}
+                        </span>
+                    </div>
+
+                    <div class="report-grid">
+                        <div class="report-metric">
+                            <span class="report-metric-label">Gross Salary</span>
+                            <strong>
+                                {{ format_value(gross_salary) }}
+                            </strong>
+                        </div>
+
+                        <div class="report-metric">
+                            <span class="report-metric-label">Taxable Income</span>
+                            <strong>
+                                {{ format_value(taxable_income) }}
+                            </strong>
+                        </div>
+
+                        <div class="report-metric">
+                            <span class="report-metric-label">Total Deductions</span>
+                            <strong>
+                                {{ format_value(total_deductions) }}
+                            </strong>
+                        </div>
+
+                        <div class="report-metric">
+                            <span class="report-metric-label">Old Regime Tax</span>
+                            <strong>
+                                {{ format_value(old_tax) }}
+                            </strong>
+                        </div>
+
+                        <div class="report-metric">
+                            <span class="report-metric-label">New Regime Tax</span>
+                            <strong>
+                                {{ format_value(new_tax) }}
+                            </strong>
+                        </div>
+
+                        <div class="report-metric">
+                            <span class="report-metric-label">Estimated Tax Difference</span>
+                            <strong>
+                                {{ format_value(tax_saved) }}
+                            </strong>
+                            <small>
+                                Recommended regime:
+                                {{ recommended_regime or "Not available" }}
+                            </small>
+                        </div>
+                    </div>
+
+                    {% if profile_validation %}
+                        {% if profile_validation.errors %}
+                            <div class="report-validation">
+                                <h3>Financial profile requires review</h3>
+                                <ul>
+                                    {% for error in profile_validation.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% elif profile_validation.warnings %}
+                            <div class="report-validation">
+                                <h3>Validation warnings</h3>
+                                <ul>
+                                    {% for warning in profile_validation.warnings %}
+                                        <li>{{ warning }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+
+                    <p class="report-note">
+                        Tax values are estimates, not official tax assessments.
+                        Review the financial year, applicable tax rules and original
+                        documents before relying on these figures. Missing values
+                        are displayed as “Not available,” not as zero.
+                    </p>
+                </section>
+
+                <section class="panel report-section">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Form 16 Summary</h2>
+                            <p class="report-subtitle">
+                                Extracted information from your latest Form 16.
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if form16_document %}
+                        <div class="report-list-item">
+                            <h3>{{ form16_document.file_name or "Form 16 document" }}</h3>
+                            <p>
+                                <strong>Upload date:</strong>
+                                {{ form16_document.upload_date or "Not available" }}
+                            </p>
+                            <p>
+                                <strong>OCR status:</strong>
+                                {{ form16_document.ocr_status or "Not available" }}
+                            </p>
+                        </div>
+                    {% endif %}
+
+                    {% if form16_summary %}
+                        <div class="report-table-wrap">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Field</th>
+                                        <th>Extracted Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in form16_summary %}
+                                        <tr>
+                                            <td>{{ item.label }}</td>
+                                            <td>{{ item.value }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="report-empty">
+                            <h3>No Form 16 summary available</h3>
+                            <p>
+                                Upload and process a Form 16 to populate this section
+                                with extracted information.
+                            </p>
+                            <a class="report-upload-link"
+                               href="{{ url_for('upload.upload_form16') }}">
+                                Upload Form 16 →
+                            </a>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <section class="panel report-section">
+                    <div class="panel-header">
+                        <div>
+                            <h2>AI Tax Recommendations</h2>
+                            <p class="report-subtitle">
+                                Your latest saved recommendations.
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if recommendations %}
+                        <div class="report-list">
+                            {% for item in recommendations %}
+                                <article class="report-list-item">
+                                    <h3>
+                                        {{ item.title if item.title is defined else "Tax Recommendation" }}
+                                    </h3>
+
+                                    <p>
+                                        <strong>Recommendation:</strong>
+                                        {{ item.recommendation or
+                                           (item.message if item.message is defined else "Review this recommendation.") }}
+                                    </p>
+
+                                    {% if item.reason is defined and item.reason %}
+                                        <p><strong>Reason:</strong> {{ item.reason }}</p>
+                                    {% endif %}
+
+                                    {% if item.created_for_year is defined and item.created_for_year %}
+                                        <p>
+                                            <strong>Financial Year:</strong>
+                                            {{ item.created_for_year }}
+                                        </p>
+                                    {% endif %}
+
+                                    {% if item.confidence_score is defined and item.confidence_score is not none %}
+                                        <p>
+                                            <strong>Confidence:</strong>
+                                            {{ "%.0f"|format(item.confidence_score * 100 if item.confidence_score <= 1 else item.confidence_score) }}%
+                                        </p>
+                                    {% endif %}
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="report-empty">
+                            <h3>No recommendations available</h3>
+                            <p>
+                                Recommendations will appear here when they have
+                                been generated and saved for your account.
+                            </p>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <section class="panel report-section">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Uploaded Documents</h2>
+                            <p class="report-subtitle">
+                                Your latest uploaded documents.
+                            </p>
+                        </div>
+                    </div>
+
+                    {% if documents %}
+                        <div class="report-table-wrap">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Document</th>
+                                        <th>Type</th>
+                                        <th>Upload Date</th>
+                                        <th>OCR Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for doc in documents %}
+                                        <tr>
+                                            <td>{{ doc.file_name or "Unnamed document" }}</td>
+                                            <td>{{ doc.document_type or "Not specified" }}</td>
+                                            <td>{{ doc.upload_date or "Not available" }}</td>
+                                            <td>{{ doc.ocr_status or "Pending" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="report-empty">
+                            <h3>No uploaded documents</h3>
+                            <p>
+                                Your uploaded documents will appear here.
+                            </p>
+                            <a class="report-upload-link"
+                               href="{{ url_for('upload.upload_hub') }}">
+                                Upload Documents →
+                            </a>
+                        </div>
+                    {% endif %}
+                </section>
+
+            </div>
+
+            <footer class="report-footer">
+                © 2026 CAAI — AI Powered Tax Advisor · Version 1.0
+            </footer>
+        </main>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+<script>
+(function () {
+    const downloadButton = document.getElementById("downloadReportBtn");
+    const printButton = document.getElementById("printReportBtn");
+    const reportContent = document.getElementById("reportContent");
+
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, function (char) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[char];
+        });
+    }
+
+    function buildDownloadDocument() {
+        const clonedReport = reportContent.cloneNode(true);
+
+        const styles = `
+            body {
+                font-family: Arial, sans-serif;
+                color: #172033;
+                margin: 30px;
+                line-height: 1.5;
+            }
+            h1, h2, h3 { color: #172033; }
+            .report-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+                margin: 16px 0;
+            }
+            .report-metric, .report-list-item {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 14px;
+                break-inside: avoid;
+            }
+            .report-metric-label {
+                display: block;
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 8px;
+            }
+            .report-metric strong { font-size: 18px; }
+            .report-section {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 18px;
+                margin-bottom: 20px;
+                break-inside: avoid;
+            }
+            .report-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 12px;
+            }
+            .report-table th, .report-table td {
+                border-bottom: 1px solid #ddd;
+                padding: 9px;
+                text-align: left;
+                overflow-wrap: anywhere;
+            }
+            .report-note, .report-subtitle {
+                font-size: 12px;
+                color: #555;
+            }
+            .report-status {
+                display: inline-block;
+                padding: 5px;
+                background: #eee;
+                border-radius: 5px;
+            }
+            @media print {
+                body { margin: 15mm; }
+            }
+        `;
+
+        const title = "CAAI Tax Report";
+        const reportDate = new Date().toLocaleDateString("en-IN");
+
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(title)}</title>
+<style>${styles}</style>
+</head>
+<body>
+<header>
+<h1>${escapeHtml(title)}</h1>
+<p>Generated on ${escapeHtml(reportDate)}</p>
+<p>Personal tax information report — verify values against original documents.</p>
+</header>
+${clonedReport.innerHTML}
+<footer>
+<hr>
+<p>Generated by CAAI — AI Powered Tax Advisor.</p>
+<p>This report is for informational purposes and is not an official tax assessment.</p>
+</footer>
+</body>
+</html>`;
+    }
+
+    downloadButton.addEventListener("click", function () {
+        const content = buildDownloadDocument();
+        const blob = new Blob([content], { type: "text/html;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = "CAAI_Tax_Report.html";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(url);
+    });
+
+    printButton.addEventListener("click", function () {
+        window.print();
+    });
+})();
+</script>
+</body>
+</html>

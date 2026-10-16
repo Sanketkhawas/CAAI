@@ -1,14 +1,14 @@
+
 """
 slab_calculator.py
 ------------------
+Income Tax Slab Calculator for Assessment Year 2026-27.
 
-Income Tax Slab Calculator.
-
-Calculates tax for:
-- Old Regime
+Calculates basic income tax for:
+- Old Regime (individual below 60 years)
 - New Regime
 
-Author: CAAI Team
+Cess and rebate should be handled separately.
 """
 
 from services.tax_engine.tax_utils import TaxUtils
@@ -16,80 +16,49 @@ from services.tax_engine.tax_utils import TaxUtils
 
 class SlabCalculator:
 
-    # -----------------------------
-    # Old Regime
-    # -----------------------------
+    @staticmethod
+    def _calculate_progressive_tax(taxable_income, slabs):
+        income = max(0, TaxUtils.clean_amount(taxable_income))
+        tax = 0.0
+        previous_limit = 0
+
+        for limit, rate in slabs:
+            if income <= previous_limit:
+                break
+
+            taxable_in_slab = min(income, limit) - previous_limit
+            tax += taxable_in_slab * rate
+            previous_limit = limit
+
+        return round(tax, 2)
+
     @staticmethod
     def calculate_old_regime_tax(taxable_income):
+        slabs = [
+            (250000, 0.00),
+            (500000, 0.05),
+            (1000000, 0.20),
+            (float("inf"), 0.30),
+        ]
 
-        taxable_income = TaxUtils.clean_amount(taxable_income)
-
-        tax = 0
-
-        if taxable_income <= 250000:
-            tax = 0
-
-        elif taxable_income <= 500000:
-            tax = (taxable_income - 250000) * 0.05
-
-        elif taxable_income <= 1000000:
-            tax = (
-                12500 +
-                (taxable_income - 500000) * 0.20
-            )
-
-        else:
-            tax = (
-                112500 +
-                (taxable_income - 1000000) * 0.30
-            )
-
+        tax = SlabCalculator._calculate_progressive_tax(
+            taxable_income, slabs
+        )
         return TaxUtils.calculate_total_tax(tax)
 
-    # -----------------------------
-    # New Regime
-    # -----------------------------
     @staticmethod
     def calculate_new_regime_tax(taxable_income):
+        slabs = [
+            (400000, 0.00),
+            (800000, 0.05),
+            (1200000, 0.10),
+            (1600000, 0.15),
+            (2000000, 0.20),
+            (2400000, 0.25),
+            (float("inf"), 0.30),
+        ]
 
-        taxable_income = TaxUtils.clean_amount(taxable_income)
-
-        tax = 0
-
-        if taxable_income <= 400000:
-            tax = 0
-
-        elif taxable_income <= 800000:
-            tax = (taxable_income - 400000) * 0.05
-
-        elif taxable_income <= 1200000:
-            tax = (
-                20000 +
-                (taxable_income - 800000) * 0.10
-            )
-
-        elif taxable_income <= 1600000:
-            tax = (
-                60000 +
-                (taxable_income - 1200000) * 0.15
-            )
-
-        elif taxable_income <= 2000000:
-            tax = (
-                120000 +
-                (taxable_income - 1600000) * 0.20
-            )
-
-        elif taxable_income <= 2400000:
-            tax = (
-                200000 +
-                (taxable_income - 2000000) * 0.25
-            )
-
-        else:
-            tax = (
-                300000 +
-                (taxable_income - 2400000) * 0.30
-            )
-
+        tax = SlabCalculator._calculate_progressive_tax(
+            taxable_income, slabs
+        )
         return TaxUtils.calculate_total_tax(tax)

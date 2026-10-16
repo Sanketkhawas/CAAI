@@ -1,13 +1,28 @@
+
+"""
+Response Generator
+------------------
+Generates AI responses and propagates failures
+to the Flask route for proper error handling.
+"""
+
+import logging
+
 from services.chatbot.llm_interface import LLMInterface
+
+logger = logging.getLogger(__name__)
 
 
 class ResponseGenerator:
 
     @staticmethod
     def generate(prompt):
-        try:
-            llm = LLMInterface()
-            return llm.generate(prompt)
+        llm = LLMInterface()
+        answer = llm.generate(prompt)
 
-        except Exception as e:
-            return f"Error: {str(e)}"
+        if not answer or not answer.strip():
+            raise RuntimeError(
+                "The AI assistant returned an empty response."
+            )
+
+        return answer.strip()

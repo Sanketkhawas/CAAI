@@ -1,0 +1,918 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f6f7fb">
+
+    <title>AI Tax Assistant · CAAI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+    <style>
+        :root {
+            --chat-accent: #5965f3;
+            --chat-accent-light: #eef0ff;
+            --chat-border: rgba(128, 128, 128, 0.18);
+            --chat-muted: #73798a;
+            --chat-surface: #ffffff;
+            --chat-page: #f6f7fb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        .chat-page {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 72px);
+            padding: 26px;
+            gap: 20px;
+        }
+
+        .chat-page-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .chat-heading-copy h1 {
+            margin: 0;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: clamp(24px, 3vw, 32px);
+            font-weight: 700;
+        }
+
+        .chat-heading-copy p {
+            margin: 8px 0 0;
+            color: var(--chat-muted);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .chat-heading-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border: 1px solid var(--chat-border);
+            border-radius: 999px;
+            font-size: 12px;
+            color: var(--chat-muted);
+            background: var(--chat-surface);
+        }
+
+        .chat-status-dot {
+            width: 8px;
+            height: 8px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .chat-clear-btn {
+            border: 1px solid var(--chat-border);
+            border-radius: 10px;
+            padding: 10px 13px;
+            background: var(--chat-surface);
+            color: inherit;
+            cursor: pointer;
+            font: inherit;
+            font-size: 13px;
+        }
+
+        .chat-clear-btn:hover {
+            border-color: var(--chat-accent);
+            color: var(--chat-accent);
+        }
+
+        .chat-workspace {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-height: 540px;
+            max-height: calc(100vh - 190px);
+            overflow: hidden;
+            border: 1px solid var(--chat-border);
+            border-radius: 18px;
+            background: var(--chat-surface);
+            box-shadow: 0 8px 32px rgba(20, 25, 60, 0.04);
+        }
+
+        .chat-workspace-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--chat-border);
+        }
+
+        .chat-assistant-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            border-radius: 14px;
+            background: var(--chat-accent-light);
+            color: var(--chat-accent);
+            font-size: 22px;
+        }
+
+        .chat-assistant-info {
+            min-width: 0;
+        }
+
+        .chat-assistant-info h2 {
+            margin: 0;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 16px;
+        }
+
+        .chat-assistant-info p {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: var(--chat-muted);
+        }
+
+        .chat-secure-label {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--chat-muted);
+        }
+
+        .chat-messages {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            gap: 18px;
+            min-height: 0;
+            padding: 24px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .chat-welcome {
+            width: 100%;
+            max-width: 680px;
+            margin: auto;
+            padding: 22px 0;
+            text-align: center;
+        }
+
+        .chat-welcome-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 18px;
+            border-radius: 20px;
+            background: var(--chat-accent-light);
+            font-size: 30px;
+        }
+
+        .chat-welcome h2 {
+            margin: 0;
+            font-family: "Space Grotesk", sans-serif;
+            font-size: clamp(22px, 3vw, 28px);
+        }
+
+        .chat-welcome > p {
+            max-width: 510px;
+            margin: 12px auto 24px;
+            color: var(--chat-muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .chat-prompt-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            text-align: left;
+        }
+
+        .chat-prompt {
+            padding: 15px;
+            border: 1px solid var(--chat-border);
+            border-radius: 12px;
+            background: var(--chat-surface);
+            color: inherit;
+            cursor: pointer;
+            text-align: left;
+            font: inherit;
+            font-size: 13px;
+            line-height: 1.5;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .chat-prompt:hover {
+            border-color: var(--chat-accent);
+            background: var(--chat-accent-light);
+        }
+
+        .chat-prompt strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .chat-prompt span {
+            color: var(--chat-muted);
+        }
+
+        .chat-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .chat-message-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: var(--chat-accent-light);
+            font-size: 15px;
+        }
+
+        .chat-message.user .chat-message-avatar {
+            order: 2;
+            background: var(--chat-accent);
+            color: #ffffff;
+        }
+
+        .chat-message-bubble {
+            max-width: min(78%, 720px);
+            padding: 13px 16px;
+            border: 1px solid var(--chat-border);
+            border-radius: 4px 15px 15px 15px;
+            background: var(--chat-page);
+            font-size: 14px;
+            line-height: 1.75;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .chat-message.user .chat-message-bubble {
+            order: 1;
+            border-color: var(--chat-accent);
+            border-radius: 15px 4px 15px 15px;
+            background: var(--chat-accent);
+            color: #ffffff;
+        }
+
+        .chat-message-time {
+            display: block;
+            margin-top: 7px;
+            font-size: 10px;
+            opacity: 0.65;
+        }
+
+        .chat-typing {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 0;
+        }
+
+        .chat-typing span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--chat-muted);
+            animation: chatTyping 1s infinite ease-in-out;
+        }
+
+        .chat-typing span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .chat-typing span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes chatTyping {
+            0%, 60%, 100% {
+                opacity: 0.35;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-4px);
+            }
+        }
+
+        .chat-composer-area {
+            padding: 16px 22px 12px;
+            border-top: 1px solid var(--chat-border);
+            background: var(--chat-surface);
+        }
+
+        .chat-composer {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            padding: 8px;
+            border: 1px solid var(--chat-border);
+            border-radius: 14px;
+            background: var(--chat-page);
+            transition: border-color 0.15s;
+        }
+
+        .chat-composer:focus-within {
+            border-color: var(--chat-accent);
+        }
+
+        .chat-composer textarea {
+            flex: 1;
+            width: 100%;
+            min-width: 0;
+            min-height: 44px;
+            max-height: 140px;
+            resize: none;
+            padding: 12px;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: inherit;
+            font-family: "Inter", sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .chat-composer textarea::placeholder {
+            color: var(--chat-muted);
+        }
+
+        .chat-send-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            border: 0;
+            border-radius: 11px;
+            background: var(--chat-accent);
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 20px;
+            transition: opacity 0.15s, transform 0.15s;
+        }
+
+        .chat-send-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .chat-send-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .chat-input-hint {
+            margin: 10px 0 0;
+            text-align: center;
+            font-size: 11px;
+            color: var(--chat-muted);
+            line-height: 1.5;
+        }
+
+        .chat-footer {
+            padding: 0 22px 18px;
+            font-size: 11px;
+            line-height: 1.5;
+            text-align: center;
+            color: var(--chat-muted);
+        }
+
+        .chat-error {
+            color: #b42318;
+        }
+
+        @media (max-width: 720px) {
+            .chat-page {
+                min-height: calc(100vh - 60px);
+                padding: 16px 12px;
+                gap: 14px;
+            }
+
+            .chat-workspace {
+                min-height: 480px;
+                max-height: none;
+                height: calc(100vh - 210px);
+            }
+
+            .chat-workspace-header {
+                padding: 14px;
+            }
+
+            .chat-secure-label {
+                display: none;
+            }
+
+            .chat-messages {
+                padding: 16px 12px;
+            }
+
+            .chat-prompt-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-message-bubble {
+                max-width: 88%;
+            }
+
+            .chat-composer-area {
+                padding: 12px;
+            }
+
+            .chat-footer {
+                padding: 0 12px 14px;
+            }
+
+            .chat-heading-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <span class="brand-mark">C</span>
+            <span class="brand-name">CAAI</span>
+            <button class="sidebar-toggle" id="sidebarToggle"
+                    aria-label="Collapse sidebar">‹</button>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{{ url_for('dashboard.dashboard_home') }}"
+               class="nav-item">
+                <span class="nav-icon">▦</span>
+                <span class="nav-label">Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('upload.upload_hub') }}"
+               class="nav-item">
+                <span class="nav-icon">⇧</span>
+                <span class="nav-label">Upload Documents</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.tax_summary') }}"
+               class="nav-item">
+                <span class="nav-icon">Σ</span>
+                <span class="nav-label">Tax Summary</span>
+            </a>
+
+            <a href="{{ url_for('chatbot.chat_page') }}"
+               class="nav-item active" aria-current="page">
+                <span class="nav-icon">✦</span>
+                <span class="nav-label">AI Assistant</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.reports_placeholder') }}"
+               class="nav-item">
+                <span class="nav-icon">▤</span>
+                <span class="nav-label">Reports</span>
+            </a>
+
+            <a href="{{ url_for('dashboard.profile_placeholder') }}"
+               class="nav-item">
+                <span class="nav-icon">◉</span>
+                <span class="nav-label">Profile</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="nav-item logout">
+                <span class="nav-icon">⏻</span>
+                <span class="nav-label">Logout</span>
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <header class="navbar">
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn"
+                    aria-label="Open menu">☰</button>
+
+            <div class="navbar-search">
+                <span class="search-icon">⌕</span>
+                <input type="text" placeholder="Search documents, reports, actions…">
+            </div>
+
+            <div class="navbar-actions">
+
+                <button class="icon-btn" id="notifBtn"
+                        aria-label="Notifications">
+                    🔔<span class="notif-dot"></span>
+                </button>
+
+                <div class="notif-dropdown" id="notifDropdown">
+                    <p class="notif-title">Notifications</p>
+                    <p class="notif-empty">
+                        You're all caught up. Nothing needs your attention right now.
+                    </p>
+                </div>
+
+                <button class="icon-btn" id="darkModeBtn"
+                        aria-label="Toggle dark mode">◐</button>
+
+                <a href="{{ url_for('dashboard.profile_placeholder') }}"
+                   class="navbar-profile"
+                   aria-label="Open profile"
+                   style="text-decoration:none;">
+                    <span class="avatar">
+                        {{ (user.name[0] if user and user.name else "U") | upper }}
+                    </span>
+                </a>
+
+            </div>
+        </header>
+
+        <!-- AI ASSISTANT PAGE -->
+        <main class="chat-page">
+
+            <section class="chat-page-heading">
+                <div class="chat-heading-copy">
+                    <h1>AI Tax Assistant</h1>
+                    <p>
+                        Ask questions about your tax documents, deductions,
+                        taxable income and tax regimes.
+                    </p>
+                </div>
+
+                <div class="chat-heading-actions">
+                    <span class="chat-status">
+                        <span class="chat-status-dot"></span>
+                        Assistant
+                    </span>
+
+                    <button type="button" class="chat-clear-btn"
+                            id="clearChatBtn">
+                        Clear chat
+                    </button>
+                </div>
+            </section>
+
+            <section class="chat-workspace">
+
+                <header class="chat-workspace-header">
+                    <div class="chat-assistant-avatar">✦</div>
+
+                    <div class="chat-assistant-info">
+                        <h2>CAAI Tax Assistant</h2>
+                        <p>Tax guidance based on your question and available context</p>
+                    </div>
+
+                    <span class="chat-secure-label">
+                        Do not share passwords or OTPs
+                    </span>
+                </header>
+
+                <div class="chat-messages" id="chatMessages"
+                     role="log" aria-live="polite" aria-relevant="additions">
+
+                    <div class="chat-welcome" id="chatWelcome">
+
+                        <div class="chat-welcome-icon">✦</div>
+
+                        <h2>
+                            Hello, {{ user.name if user and user.name else "there" }}!
+                        </h2>
+
+                        <p>
+                            I'm your AI Tax Assistant. Choose a question below
+                            or type your own. I'll help explain tax concepts and
+                            guide you through your available tax information.
+                        </p>
+
+                        <div class="chat-prompt-grid">
+
+                            <button type="button" class="chat-prompt"
+                                    data-question="Which tax regime may be better for me?">
+                                <strong>Compare tax regimes</strong>
+                                <span>Understand the old and new regimes.</span>
+                            </button>
+
+                            <button type="button" class="chat-prompt"
+                                    data-question="Can I save more tax based on my available deductions?">
+                                <strong>Explore tax savings</strong>
+                                <span>Understand deductions and eligibility.</span>
+                            </button>
+
+                            <button type="button" class="chat-prompt"
+                                    data-question="Explain the important sections of Form 16.">
+                                <strong>Understand Form 16</strong>
+                                <span>Learn what the key fields mean.</span>
+                            </button>
+
+                            <button type="button" class="chat-prompt"
+                                    data-question="How is taxable income calculated?">
+                                <strong>Calculate taxable income</strong>
+                                <span>Understand the main calculation steps.</span>
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="chat-composer-area">
+
+                    <form class="chat-composer" id="chatForm">
+
+                        <textarea
+                            id="chatInput"
+                            name="question"
+                            rows="1"
+                            maxlength="4000"
+                            placeholder="Ask a question about your taxes..."
+                            aria-label="Your tax question"
+                            required
+                        ></textarea>
+
+                        <button type="submit" class="chat-send-btn"
+                                id="sendMessage" aria-label="Send message">
+                            ➤
+                        </button>
+
+                    </form>
+
+                    <p class="chat-input-hint">
+                        Press Enter to send · Shift + Enter for a new line
+                    </p>
+
+                </div>
+
+                <footer class="chat-footer">
+                    AI responses may contain errors. Verify tax calculations
+                    and current rules before making financial decisions.
+                </footer>
+
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
+
+    const chatForm = document.getElementById("chatForm");
+    const chatInput = document.getElementById("chatInput");
+    const sendButton = document.getElementById("sendMessage");
+    const chatMessages = document.getElementById("chatMessages");
+    const chatWelcome = document.getElementById("chatWelcome");
+    const clearChatBtn = document.getElementById("clearChatBtn");
+    const promptButtons = document.querySelectorAll(".chat-prompt");
+
+    // Uses the existing Flask POST endpoint.
+    const chatEndpoint = {{ url_for('chatbot.chat') | tojson }};
+
+    let isSending = false;
+
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function createMessage(text, sender) {
+        const row = document.createElement("div");
+        row.className = `chat-message ${sender}`;
+
+        const avatar = document.createElement("div");
+        avatar.className = "chat-message-avatar";
+        avatar.textContent = sender === "user" ? "You" : "✦";
+        avatar.setAttribute("aria-hidden", "true");
+
+        const bubble = document.createElement("div");
+        bubble.className = "chat-message-bubble";
+
+        // Treat all message content as plain text.
+        bubble.textContent = String(text ?? "");
+
+        const time = document.createElement("span");
+        time.className = "chat-message-time";
+        time.textContent = new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        bubble.appendChild(time);
+        row.append(avatar, bubble);
+        chatMessages.appendChild(row);
+
+        scrollToBottom();
+
+        return { row, bubble };
+    }
+
+    function showTypingIndicator() {
+        const row = document.createElement("div");
+        row.className = "chat-message bot";
+        row.id = "chatTypingIndicator";
+        row.setAttribute("aria-label", "Assistant is thinking");
+
+        const avatar = document.createElement("div");
+        avatar.className = "chat-message-avatar";
+        avatar.textContent = "✦";
+
+        const bubble = document.createElement("div");
+        bubble.className = "chat-message-bubble";
+
+        const typing = document.createElement("div");
+        typing.className = "chat-typing";
+
+        for (let i = 0; i < 3; i++) {
+            typing.appendChild(document.createElement("span"));
+        }
+
+        bubble.appendChild(typing);
+        row.append(avatar, bubble);
+        chatMessages.appendChild(row);
+
+        scrollToBottom();
+        return row;
+    }
+
+    function setSending(sending) {
+        isSending = sending;
+        sendButton.disabled = sending;
+        chatInput.disabled = sending;
+        sendButton.textContent = sending ? "…" : "➤";
+        sendButton.setAttribute("aria-label",
+            sending ? "Sending message" : "Send message");
+    }
+
+    async function sendQuestion(question) {
+        const cleaned = String(question ?? "").trim();
+
+        if (!cleaned || isSending) return;
+
+        if (chatWelcome) {
+            chatWelcome.remove();
+        }
+
+        createMessage(cleaned, "user");
+        chatInput.value = "";
+        chatInput.style.height = "auto";
+
+        setSending(true);
+        const typingIndicator = showTypingIndicator();
+
+        try {
+            const response = await fetch(chatEndpoint, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ question: cleaned })
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error(
+                        "Your session may have expired. Please log in again."
+                    );
+                }
+
+                if (
+                    response.status === 503 ||
+                    String(data.error || "").includes("503 UNAVAILABLE") ||
+                    String(data.error || "").toLowerCase().includes("high demand")
+                ) {
+                    throw new Error(
+                        "The AI service is temporarily busy. Please try again shortly."
+                    );
+                }
+
+                throw new Error(
+                    data.error || `The request failed (HTTP ${response.status}).`
+                );
+            }
+
+            if (typeof data.answer !== "string" || !data.answer.trim()) {
+                throw new Error("The assistant returned an empty response.");
+            }
+
+            createMessage(data.answer, "bot");
+
+        } catch (error) {
+            console.error("CAAI chatbot error:", error);
+
+            const message =
+                error instanceof TypeError
+                    ? "Unable to reach the assistant. Check your connection and try again."
+                    : error.message || "Something went wrong. Please try again.";
+
+            const errorMessage = createMessage(message, "bot");
+            errorMessage.bubble.classList.add("chat-error");
+
+        } finally {
+            typingIndicator.remove();
+            setSending(false);
+            chatInput.focus();
+        }
+    }
+
+    chatForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        sendQuestion(chatInput.value);
+    });
+
+    chatInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            chatForm.requestSubmit();
+        }
+    });
+
+    // Grow the textarea as the user types.
+    chatInput.addEventListener("input", () => {
+        chatInput.style.height = "auto";
+        chatInput.style.height =
+            Math.min(chatInput.scrollHeight, 140) + "px";
+    });
+
+    promptButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            sendQuestion(button.dataset.question || button.textContent);
+        });
+    });
+
+    clearChatBtn.addEventListener("click", () => {
+        if (isSending) return;
+
+        chatMessages.replaceChildren();
+
+        if (chatWelcome) {
+            chatMessages.appendChild(chatWelcome);
+        }
+
+        chatInput.value = "";
+        chatInput.style.height = "auto";
+        chatInput.focus();
+    });
+});
+</script>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+</body>
+</html>
