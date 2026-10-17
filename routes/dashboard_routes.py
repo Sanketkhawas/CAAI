@@ -324,11 +324,18 @@ def dashboard_home():
         estimated_tax = selected_result.get("total_tax")
         potential_savings = tax_result.get("tax_saved") or 0
 
+        # Demonstration TDS values for the dashboard.
+    # These are not verified from the user's Form 16.
+    annual_tds = 208000
+    monthly_tds = round(annual_tds / 12)
+
     stats = {
         "documents_uploaded": documents_uploaded,
         "estimated_tax": estimated_tax,
         "potential_savings": potential_savings,
         "ai_recommendations": len(recommendations),
+        "annual_tds": annual_tds,
+        "monthly_tds": monthly_tds,
     }
 
     recent_docs = (

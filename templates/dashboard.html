@@ -363,7 +363,7 @@
                     <span class="stat-icon">↓</span>
                     <p class="stat-value"
                        data-prefix="₹"
-                       data-count="{{ stats.potential_savings }}">₹0</p>
+                       data-count="{{ stats.annual_tds - 135200 }}">₹0</p>
                     <p class="stat-label">Potential Savings</p>
                 </div>
 
@@ -374,6 +374,56 @@
                     <p class="stat-label">AI Recommendations</p>
                 </div>
 
+            </section>
+            
+            <!-- TDS OVERVIEW -->
+            <section class="panel form16-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>TDS Overview</h2>
+                        <p class="form16-subtitle">
+                            Demonstration estimate of tax deducted from salary
+                        </p>
+                    </div>
+                    <span class="form16-status">predicted Data</span>
+                </div>
+
+                <div class="form16-summary-grid">
+                    <div class="form16-metric">
+                        <span class="form16-metric-label">
+                            Annual TDS
+                        </span>
+                        <strong>
+                            ₹{{ "{:,.0f}".format(stats.annual_tds) }}
+                        </strong>
+                    </div>
+
+                    <div class="form16-metric">
+                        <span class="form16-metric-label">
+                            Average Monthly TDS
+                        </span>
+                        <strong>
+                            ₹{{ "{:,.0f}".format(stats.monthly_tds) }}
+                        </strong>
+                    </div>
+
+                    <div class="form16-metric">
+                        <span class="form16-metric-label">
+                            TDS - New Regime Threshold 
+                        </span>
+                        <strong>
+                            ₹{{ "{:,.0f}".format(
+                                stats.annual_tds - 135200
+                            ) }}
+                        </strong>
+                    </div>
+                </div>
+
+                <p class="form16-disclaimer">
+                    These TDS figures are hardcoded demonstration values, not verified
+                    payroll or Form 16 data. The actual refund can only be estimated
+                    after comparing verified tax payments with the final tax liability.
+                </p>
             </section>
 
             <!-- FORM 16 TAX OVERVIEW -->
